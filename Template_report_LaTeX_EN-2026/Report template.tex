@@ -1,0 +1,507 @@
+%----------------------------------------------------------------------------------------
+%
+% LaTeX-template for degree projects at LNU, Department of Computer Science
+% Last updated by Jonas Lundberg, Mar 2025
+% Linnaeus University
+%
+% License: Creative Commons BY
+%
+%----------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------
+%	Settings and configuration
+%----------------------------------------------------------------------------------------
+
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{dtklogos}
+\usepackage{wallpaper}
+\usepackage[absolute]{textpos}
+\usepackage[top=2cm, bottom=2.5cm, left=3cm, right=3cm]{geometry}
+\usepackage{appendix}
+\usepackage[nottoc]{tocbibind}
+\usepackage[colorlinks=true,
+            linkcolor=black,
+            urlcolor=blue,
+            citecolor=black]{hyperref}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\usepackage{sectsty}
+\sectionfont{\fontsize{14}{15}\selectfont}
+\subsectionfont{\fontsize{12}{15}\selectfont}
+\subsubsectionfont{\fontsize{12}{15}\selectfont}
+
+\usepackage{csquotes} % Used to handle citations
+
+\renewcommand{\thetable}{\arabic{section}.\arabic{table}}  
+\renewcommand{\thefigure}{\arabic{section}.\arabic{figure}} 
+
+%----------------------------------------------------------------------------------------
+%	
+%----------------------------------------------------------------------------------------
+\newsavebox{\mybox}
+\newlength{\mydepth}
+\newlength{\myheight}
+
+\newenvironment{sidebar}%
+{\begin{lrbox}{\mybox}\begin{minipage}{\textwidth}}%
+{\end{minipage}\end{lrbox}%
+ \settodepth{\mydepth}{\usebox{\mybox}}%
+ \settoheight{\myheight}{\usebox{\mybox}}%
+ \addtolength{\myheight}{\mydepth}%
+ \noindent\makebox[0pt]{\hspace{-20pt}\rule[-\mydepth]{1pt}{\myheight}}%
+ \usebox{\mybox}}
+
+%----------------------------------------------------------------------------------------
+%	Title section
+%----------------------------------------------------------------------------------------
+\newcommand\BackgroundPic{
+    \put(-2,-3){
+    \includegraphics[keepaspectratio,scale=0.3]{img/lnu_etch.png} % Background picture
+    }
+}
+\newcommand\BackgroundPicLogo{
+    \put(30,740){
+    \includegraphics[keepaspectratio,scale=0.10]{img/logo.png} % Logo in upper left corner
+    }
+}
+
+\title{	
+\vspace{-8cm}
+\begin{sidebar}
+    \vspace{10cm}
+    \normalfont \normalsize
+    \Huge Engineering Degree Project \\
+    \vspace{-1.3cm}
+\end{sidebar}
+\vspace{3cm}
+\begin{flushleft}
+    \huge Automatic Generation of Test Cases by using Generative AI\\ 
+    \it \LARGE - Optional subtitle 
+\end{flushleft}
+\null
+\vfill
+\begin{textblock}{6}(10,13)
+\begin{flushright}
+\begin{minipage}{\textwidth}  %\textwidth
+\begin{flushleft} \large
+\emph{Author:} Alvin Svensson \& Danny Nguyen\\ % Author
+\emph{Supervisor:} Nils Johansson \& Ove Welander\\ % Supervisor
+\emph{Lnu Supervisor:} Hemant Ghayvat \\ % Supervisor
+%\emph{Examiner:} Dr.~Mark \textsc{Brown}\\ % Examiner (course manager)
+\emph{Semester:} Spring 2026\\ % 
+\emph{Subject:} Computer Science\\ % Subject area
+\end{flushleft}
+\end{minipage}
+\end{flushright}
+\end{textblock}
+}
+
+\date{} 
+
+\begin{document}
+\pagenumbering{gobble}
+\newgeometry{left=5cm}
+\AddToShipoutPicture*{\BackgroundPic}
+\AddToShipoutPicture*{\BackgroundPicLogo}
+\maketitle
+\restoregeometry
+\clearpage
+%----------------------------------------------------------------------------------------
+%	Abstract
+%----------------------------------------------------------------------------------------
+\selectlanguage{english}
+\begin{abstract}
+\noindent The report shall begin with a summary, called abstract. The abstract shall not be longer than a paragraph, and is not divided into more than one piece. It shall contain:
+
+\begin {itemize}
+\item A short background description to the area of your project
+\item A description of the problem you investigate
+\item A motivation why this problem is interesting to investigate
+\item What you have done to answer the problem
+\item A short summary of your results
+\end {itemize}
+
+From reading the abstract the reader should clearly understand what the report is all about. The purpose of the abstract is to make the reader interested in continue reading the report, if it covers something that the reader wants to know more about.
+\newline
+\newline
+\textbf{Keywords: fill in some keywords for your work here. Examples: software architectures, adaptive systems, network intrusion detection, ...}
+\end{abstract}
+
+\newpage
+%----------------------------------------------------------------------------------------
+%	Preface
+%----------------------------------------------------------------------------------------
+
+\textbf {\large{Preface}}\\
+
+\noindent You can have a preface in the report if you want, but it is not necessary. In this you can write more personal reflections on your degree project. In the preface you can also take the opportunity to thank the people who have been particularly helpful during the report writing, for example if you had any contact with a company that helped with the project, people that guided or helped you during the project, or your family and friends that supported you during the project. The preface shall not be longer than half a page.
+
+%----------------------------------------------------------------------------------------
+\newpage
+\pagenumbering{gobble}
+\tableofcontents % Table of contents
+\newpage
+\pagenumbering{arabic}
+
+%----------------------------------------------------------------------------------------
+%
+%	Here follows the actual text contents of the report.
+%
+%----------------------------------------------------------------------------------------
+
+\textbf{Notice}
+\begin{itemize}
+\item Do not change the structure of this template without a discussion (and approval) of your Lnu supervisor.
+\item Regarding tempus: Stick to \emph{present tense} throughout the report. 
+\item This is a technical report intended for readers with a technical background. Hence, be precise and concrete, and use a vocabulary suitable for your problem domain.
+\item All figures and tables in the report should be referenced and explained in the main text.
+\item You can use \href{https://www.grammarly.com}{Grammarly} or any  LLM tool to check your grammar/spelling. Use it!
+%\item The Latex code for Chapter \ref{experiments} shows examples of how to include figures and tables.
+\item \textbf{Make sure to remove this section and all template instructions before you submit your report!} 
+\end{itemize}
+
+\section{Introduction}
+\label{intro}
+In this part of the chapter you shall give a very brief introduction to your degree project. It shall start with a broad overview of what your project is all about. Similar to the abstract, the introduction shall make the reader interested in continue reading your report. Don't be too detailed here; there are plenty of opportunities to add details in later chapters.
+
+Many parts of Chapter \ref{intro} can be taken from your project plan. However, give them a critical reading and try to improve them.
+
+Software development includes many activities that help make sure that a system is reliable and works as intended. One of these activities is software testing, which is used to check system behavior and find problems before release. As software systems become larger and more complex, testing also becomes more demanding.
+
+At the same time, artificial intelligence (AI) has developed quickly and started to be used in several areas of software engineering. Large language models (LLMs) have received a lot of attention because they can understand and generate text, which makes them useful in tasks where written information is important. Zhang et al. \cite{zhang2026survey} show that LLMs are being studied in many different software engineering tasks. Software testing is one of the areas where these models are also starting to gain more interest \cite{wang2024software}.'
+
+This degree project is carried out in collaboration with Volvo Construction Equipment and investigates whether an existing LLM can be used to generate system test cases from requirements. The project focuses on one specific use of AI in software testing and studies how this can be explored in a real industrial setting. The aim is not to address all challenges in software testing, but to examine one specific case where LLMs may be useful.
+\subsection{Background}
+Describe the background to the problem area of your degree project. Begin with a broad overview of what your 
+project is all about, then focus in on the particular problem. You will need references that support your claims 
+and the problem. Use references in IEEE format \cite{ieeeguide}. A well written background is guiding the reader from the broad perspective, why there is a need 
+for an investigation, and narrowing down to the specific problem. First a subject area and then the area of investigation.
+
+Important concepts that might not be familiar to the reader can also be introduced and explained here. This is also the place where you can give a brief presentation of the company/organization you are working with (if any) and motivate why they are interested in this project.
+
+\noindent
+\textbf{Notice:}  This section should not be extensive. A more thorough presentation of your problem domain will be presented in Chapter \ref{theory} (Theory). 
+
+In many industrial development processes, system test cases are still created manually by test engineers based on requirements and other system documents. This can be a time-consuming task, especially when the system is large or complex. Earlier research shows that automated test case generation from requirements is already an established area. Mustafa et al. \cite{mustafa2021automated} show that many earlier methods are based on structured models such as Unified Modeling Language (UML) diagrams, activity diagrams, and use cases, rather than the less structured requirements that are often used in industry.
+
+In recent years, AI has developed quickly, and LLMs have shown potential in several software engineering tasks. In software testing, recent research shows that these models are already being explored for tasks such as test case generation and test design \cite{wang2024software}. This makes them relevant to study in situations where requirements are written in natural language instead of more formal models.
+
+The specific focus of this project is to examine whether an existing LLM can be used to automatically generate system test cases from requirements. This is relevant because test case creation is often a manual and time-consuming task in industry. Recent research has also started to study this problem more directly. For example, Korraprolu et al. \cite{korraprolu2025test} compare different LLMs for generating test cases from technical requirements written in natural language.
+
+The project is therefore relevant from both a practical and a research perspective. In practice, there is a need to reduce manual work and make test case creation more efficient. From a research perspective, it is still important to understand how well LLMs can support test case generation from real industrial requirements.
+\subsection{Related work}
+Here you briefly describe what others have done in the field of study or how others have attempted to explain or solve the same or similar problem as you are investigating.  Make very brief summaries of 2-3 papers that are directly related to your problem domain. It is okay to refer to online tech articles, blogs and portals, but you must also refer to published scientific articles.  \\
+
+\noindent
+\textbf{Notice:}  This section should not be extensive. A more thorough presentation of related work section will be presented in Chapter \ref{theory} (Theory). 
+
+Previous research shows that automated test case generation from requirements is an established research area. Mustafa et al. \cite{mustafa2021automated} show that many earlier studies focused on generating test cases from structured requirement models such as UML diagrams, activity diagrams, and use cases. This indicates that much previous work has relied on more formalized inputs than those often available in industrial practice.
+
+More recent research shows that AI is becoming increasingly relevant in software testing. Wang et al. \cite{wang2024software} explain that large language models are now being used in several testing-related tasks, including test case generation and test design. This suggests that AI-based methods may offer new ways of handling less structured requirement inputs.
+
+In addition, recent work has started to examine test case generation directly from natural language requirements. For example, a 2025 comparison study evaluated six large language models for generating test cases from technical requirements written in natural language, showing that this problem is now being studied more directly in an LLM context \cite{korraprolu2025test}.
+
+Together, these studies show that automated test case generation is an established research area, while recent AI-based approaches open up new possibilities for practical requirement-based test generation. This supports the relevance of investigating how AI can be used to generate test cases from industrial requirements.
+
+\subsection{Problem formulation}
+\label{problem}
+Briefly describe the problem you plan to investigate, its limitations, and what results you expect. The problem formulation should be clearly related to your background and you should also point out how it relates to the related works. Try to  specify the knowledge gap, the gap between what is known (related work) and what you plan to do. Although presented as a text, try to be concrete.  About limitations: For example, hardware and software requirements imposed by a company. About expected results: What concrete output do you expect from the project? It can be an evaluation by controlled experiments where various approaches to solve a problem is compared,  or a prototype implementation fulfilling certain criteria (e.g. accuracy $>$ 90\%). \\
+
+\noindent
+\textbf{Notice:}  Your project might involve handling 2-3 problems. For example: 1) Find the best possible approach to handle a certain problem and 2) Create a prototype implementing the best approach. 
+
+You can re-use parts of the problem formulation from your project plan that you have agreed with your supervisor. 
+
+This thesis investigates whether AI can be used to automatically generate system test cases based on system requirements and system information such as interfaces, inputs and outputs, Controller Area Network (CAN) signals, and other parameters. The main problem is to evaluate how well an AI-agent can interpret this information and convert it into clear, relevant, and structured system test cases.
+
+The focus is on assessing the quality of the generated test cases. This will be done by comparing them with manually created test cases through quantitative analysis, and by having an experienced test writer review selected AI-generated test cases through qualitative analysis. The evaluation will consider aspects such as correctness, requirement coverage, clarity, and whether the generated test cases remain relevant to the requirements without including unnecessary or redundant cases.
+
+The goal is to deliver a proof of concept that shows to what extent AI-generated system test cases can support or complement manual system test design.
+
+
+\subsection{Motivation}
+Motivate why handling the  problems in your problem formulation is import. And not only for a single company/organization,  why is your problem interesting for science, society or industry (in general). \\
+
+ You can re-use parts of the motivation part from your project plan.
+
+This problem is relevant because software testing helps improve system quality and reliability. When requirements are written in natural language, creating test cases often requires manual interpretation by test engineers, which can make the process time-consuming and difficult to standardize. This may lead to inconsistencies, redundant test cases, and lower efficiency.
+
+The problem is relevant not only for Volvo Construction Equipment, but also for companies working with embedded systems and industrial software development, where requirements are often complex and closely connected to testing. In such contexts, there is a practical need for more structured and scalable ways to connect requirements to test design. If test case generation can be automated or supported by AI, it may reduce effort, improve consistency, and support a more efficient testing process.
+
+
+\subsection{Milestones}
+The problem you shall investigate is broken down into a list of milestones. A milestones is something you shall do within the time frame of your degree project.  An milestones shall be understandable, not too small or too large, and possible to define when it is completed or not. You can read about milestones (objectives) \href{https://coursepress.lnu.se/subject/thesis-projects/objectives/}{here}.\\
+\\
+\begin{tabular} {|p{1.2cm}|p{11.6cm}|} \hline
+\textbf{M1} & Skeleton code running with AI agent\\ \hline
+\textbf{M2} & True input collected from the system to be tested\\ \hline
+\textbf{M3} & First iteration with test cases generated\\ \hline
+\textbf{M4} & Test case creating method\\ \hline
+\textbf{M5} & Second iteration of agent with the new test case creating method implemented\\ \hline
+\textbf{M6} & Feedback loop from supervisor\\ \hline
+\textbf{M7} & Agent updates following review\\ \hline
+\textbf{M8} & Formal evaluation and data collection for result\\ \hline
+\textbf{M8} & Report completed\\ \hline
+\end{tabular}\\
+
+\noindent
+\textbf{Notice:} Consider the milestone as a concrete list of smaller problems to solve (or tasks to handle)  in order to handle the overall problems presented in section \textit{Problem formulation}.
+
+
+Don't mention anything about method here. It will be covered in the Chapter \ref{method}. Note that the objectives you have defined in the project plan can change slightly during the course of the project. This is not a problem. It is often difficult to foresee everything that can occur when writing the project plan.
+
+You can re-use the motivation part from your project plan (although it is likely to be changed during the project).
+
+\subsection{Scope/Limitation}
+You cannot solve everything. Here you describe what you do, and what you don't do, in your project. Limitations can for example be that you only compare some frameworks of all frameworks available on the market, that you only use a specific set of  software and hardware since it was a requirement from the company,  that you only suggest an architecture for a specific software product and not a general architecture, or that you only include university students in a study and not a broader population sample.
+
+This project focuses on investigating whether an already existing large language model can be used to generate system test cases from requirements. One limitation is that the project only works with the existing AI solution and does not involve building a new model from scratch.
+
+The project is also limited to system test case generation. Other types of testing, such as unit testing, integration testing, and performance testing, are not included. Another limitation is that the study is carried out in one industrial context, Volvo Construction Equipment, which means that the results are mainly relevant to that setting and may not apply in exactly the same way in other companies or domains.
+
+In addition, the project only uses the requirement material available in the project and does not include all possible types of requirements or documentation formats. It also does not compare all available AI tools or language models, but focuses on the existing model used in the project.
+
+\subsection{Target group}
+Here you outline which target group that might be interested in your work. If you, for example, do a project about software architectures, a target group can be professional developers and architects that work with similar software systems as the system you investigated. If you do a project for a company, try to identy a larger target group than only the company. 
+
+This project may be interesting for test engineers, software developers, and companies that work with requirement-based testing. It can be especially relevant for organizations that want to explore how AI can be used to support software testing and reduce manual work when creating test cases.
+
+The project may also be relevant for researchers and students in software engineering, especially those interested in automated testing, requirement-based testing, and large language models. Even though the project is carried out with Volvo Construction Equipment, the results may also be useful for other companies working with complex systems and technical requirements.
+
+\subsection{Outline}
+The report is structured as follows:
+\begin{itemize}
+    \item \textbf{Introduction:} Presents the background of the project, related work, problem formulation motivation, milestones, scope/limitation, target group and outline.
+    \item \textbf{Theory:} Explains the theory and previous research that are relevant to the project.
+    \item \textbf{Method:} Describes how the study was carried out and which methods were used.
+    \item \textbf{Implementation:} Explains how the solution was developed and how the system works.
+    \item \textbf{Experimental Setup and Results:} Describes how the experiments were performed and presents the results.
+    \item \textbf{Analysis:} Explains and interprets the results in relation to the project goals.
+    \item \textbf{Discussion:} Discusses the results, the limitations, and what the project shows.
+    \item \textbf{Conclusion:} Summarizes the project and presents the final conclusions and future work.
+\end{itemize}
+
+
+\newpage
+
+\section{Theory}
+\label{theory}
+In this chapter you should demonstrate that you have a broad knowledge of area of investigation. That is, you  introduce, describe and explain the theories and important concepts to the reader,  and identify and describe relevant challenges in the area of investigation and describe related work to these challenges.
+
+This section is not about solving a problem, but it may answer one or two of your milestones. For example, the result of a literature review is often presented here (after the general introduction to the research area). 
+
+The basis for the theory chapter is most often some literature survey. Think of is as a focused textbook that introduces and explains slices of theoretical areas that are directly related to your project. Cover theories that are required for both the problem and solution, and sometimes also for the evaluation. It should be like a textbook with figures and examples. This is the chapter where your reference list grows fast! 
+
+
+\noindent
+\textbf{Notice:} All concepts, theories, tools, ..., you plan to use in the following chapters should be presented here. Divide the material into suitable subtopics and use one subsection for each subtopic.
+
+The purpose of this chapter is to present the theoretical background relevant to the project. It includes theory and previous research related to software testing, automated test case generation, large language models (LLMs), and the use of LLMs in software engineering and software testing. These areas are important for understanding the problem studied in this degree project.
+
+\subsection{Software testing fundamentals}
+Software testing is a fundamental part of developing software systems, and it is used to verify that the system behaves as expected and that its requirements are fulfilled. In software testing, there are primarily three levels of testing, including unit testing, integration testing, and system testing. Unit testing focuses on individual components of the system, integration testing focuses on multiple components working together, while system testing focuses on the system as a whole.
+
+System testing is often performed as black-box testing, which means that only the system interfaces are tested and based on the requirements, it is examined whether the system fulfills its expected behavior. From the requirements, test cases are defined as a sequence of actions to be performed during testing, including the necessary execution steps and the expected results for each step \cite{testing_study_2020}.
+
+\subsection{System testing}
+vad som testas
+varför det passar i exjobbet
+Vad är systemtest i detalj?
+End-to-end testing
+Test av hela systemarkitekturen
+Interaktion mellan komponenter
+Utmaningar (komplexitet, integrationer)
+
+A related concept is end-to-end testing. End-to-end testing usually focuses on complete flows through the system, for example from user input to final output. This is similar to system testing in the sense that both look at the behavior of the full system. However, system testing is broader and focuses more generally on whether the whole system meets its specified requirements. For this reason, system testing is the more suitable concept in this project \cite{istqbE2E}.
+
+System testing can also be challenging. Whittaker \cite{whittaker2002software} explains that software testing is difficult because software behavior can be complex and because testers must consider many possible situations, inputs, and interactions. In larger systems, this becomes even more demanding, since the complete system may include many connected parts, dependencies, and possible execution paths. This makes it difficult to test everything fully in practice.
+
+This is relevant to the present degree project because the project focuses on generating system test cases from requirements. The purpose is not to test single units of code, but to support the creation of test cases that can verify the behavior of the complete system based on written requirements. Since system testing is closely connected to requirement fulfillment, it provides an important theoretical basis for this study.
+
+\subsection{Test Case Design Techniques}
+
+\subsection{Model-based Testing}
+Model-based testing (MBT) is a testing approach where test cases are generated from a model of the system instead of being created manually. The model describes the expected behavior of the system, and the generated test cases are based on that model. Dalal et al. \cite{dalal1999model} describe model-based testing as a way of generating test cases from requirements by using models of the system behavior. This makes the testing process more systematic and supports a higher degree of automation. In the same direction, Pretschner explains that model-based testing relies on models or specifications that encode the intended behavior of a system, and that runs of the model can be interpreted as test cases \cite{pretschner2005mbt}.
+
+A central idea in MBT is therefore that the model represents how the system is expected to behave, and that test cases are derived from this representation. This makes the testing process more systematic and can support a higher degree of automation than fully manual test design \cite{dalal1999model,pretschner2005mbt}. El-Far and Whittaker also describe model-based software testing as an approach where models are used to guide test selection and test verification \cite{elfar2001mbst}.
+
+MBT is useful to this degree project because it represents an established approach to automated test generation. At the same time, it also shows an important difference compared to the present study. In MBT, the generation of test cases depends on having a model that represents the intended system behavior \cite{pretschner2005mbt}. In this degree project, the focus is instead on generating system test cases directly from written requirements by using a large language model (LLM). For this reason, MBT can be seen as a useful background and comparison point for the present work.
+
+\subsection{Automated Test Case Generation}
+
+\subsection{Large Language Models (LLMs)}
+
+\subsection{LLMs in Software}
+
+\subsection{AI-Agents}
+
+\subsection{Evaluation of Test Cases}
+
+\newpage
+
+\section{Method}
+\label{method}
+In  Section \ref{problem} you have defined problems to investigate and milestones to handle, and you need some problem-solving activity to handle the problems. This is what we mean with a method. We have a problem, and we need some proven and structured way of approaching and solving that problem. There is no single way that works for all problems. Researchers have learned through history that particular methods are effective for problems that share some characteristics (in terms of purpose, context or problem). You can, therefore, look at how others have answered similar problems as your own problem, and use a similar method.
+
+There is a wide range of methods you can use in your project.  You can read about methods \href{https://coursepress.lnu.se/subject/thesis-projects/method-overview/}{here}.
+
+\subsection{Research Project}
+In your project, as defined by the problem formulation and the milestones, it is likely that you will use several different methods. In this section we want you to state which method you plan to use to handle which problem/milestone.  Motivate your decision and relate it to the problem type, stakeholders, thesis project setup, etc. 
+
+\subsection{Method}
+Present the methods you listed in the previous section and how you plan to  apply them in your project. Each method you use should be described in detail. You must demonstrate that you have a complete understanding of the methods you use. Hence, for each method you are using: 1) Describe it in general, 2) Describe how you plan to apply it in your project.
+
+\subsection{Reliability and Validity}
+Here you discuss the reliability and validity of your project. To answer your problem you use a method, collect (and possibly analyze) data, and draw conclusions from the data. 
+
+Reliability means if others will get the same result as you if they replicate your work. Reliability problems can, for example, occur if you use the wrong method for data collection.
+
+It is important that you only draw conclusions that are valid, i.e. that is supported by the way you have done your work and the data you have collected. 
+
+You can read about reliability \href{https://coursepress.lnu.se/subject/thesis-projects/reliability/}{here} and about validity \href{https://coursepress.lnu.se/subject/thesis-projects/validity/}{here}. Discuss if you have any reliability issues or validity threats in your project here.
+
+\subsection{Ethical considerations}
+You are required to discuss any ethical considerations (if any) in your project. If you do an experiment you will most likely not have any ethical considerations, but in a survey ethical considerations can for example be how you make sure that the privacy of the people participating in the study is not violated (by for example removing names from the gathered data). 
+
+If you do not have any ethical considerations, state it and give a motivation.
+
+\subsection{AI disclosure}
+Contributions by artificial intelligence (AI) tools and
+technologies to the thesis project must be clearly reported. This should include the
+name(s) of any tools used, a description of how you used the tool(s)
+and evaluated the validity of the tool’s outputs, and a clear statement of
+which aspects of the report, implementation, data or experiments were
+affected/generated by AI tool usage.
+
+\subsection{Team Work}
+\textbf{This section is only relevant for students that work in a team.}\\
+
+
+ 
+
+The final grade for the thesis project is individual. That is, your Lnu supervisor, the reader, and the examinator must be able to say that each individual student has made a substantial contribution to the team effort. In order to facilitate individual grading  each part of the work should have \emph{one} responsible student. The team member responsible for a certain section should in some way "own" this section. That means, he/she should be able to answer detailed questions regarding this section. Also, we expect a 50-50 (roughly) division of work across the different types of project tasks. For example, both students must be involved in the technical stuff (e.g., implementation) and the more theoretical parts (e.g., writing about research methods).\\
+
+
+\textbf{Notice:} Of course, you can work together on many parts of the thesis project, but only one of you can be responsible for each part of the report.\\
+
+In this section you should simply assign  \emph{one} responsible student for each part of the report. It doesn't have to be lengthy. For example, Jonas is responsible for Chapters 2 and 6, and sections 1.1-1.4, 2.1, 2.3, 2.5-2.7, ... 
+
+Also, describe in text how you have divided the work between the team members. Which parts that was mainly handled by Student X, and which parts you did together.
+
+\newpage
+
+\section{Implementation}
+It is common that you will develop something in your project. It can be a mobile app, a stand-alone application, a website, a game, etc. In this chapter you describe the software you have implemented or the system you have created. 
+
+A good idea for how to present a non-trivial piece of software is to first present a figure showing a schematic overview of the software architecture. Try to explain the overall structure. Then dig into details in the following subsections. 
+
+Feel free to include short code snippets of important code. But not too many and not too large snippets.   All such snippets should be discussed and explained in the text.
+
+\newpage
+
+\section{Experimental Setup and Results}
+\label{experiments}
+In this section you should describe your experimental setup and results. In the ideal case you have one large experiment which results are  then discussed in the next chapter (Analysis).\\
+
+\noindent
+\textbf{Notice:} A project sometimes involves several experiments. In such cases it is often hard to understand the purpose of one experiment before previous experiments have been analyzed and discussed. In such cases we suggest that you merge Chapters \ref{experiments} and \ref{analysis} into one large chapter \textit{Experimental Setup, Results, and Analysis} where you for each experiment 
+present setup, results, analysis. Discuss with your supervisor about which approach to take.\\
+
+By experimental setup we mean a detailed description of the environment in which the experiment was carried out. For example, what computer that was used, what software that was used, if the result to be presented is an average over 10 repeated runs, etc. In short,  it should in principle be possible for a reader to repeat your experiments and get the same results if they manage to recreate your environment.
+
+The result section should only show the raw results without any analysis, and you shall not put any conclusions or opinions in the description of the results. Try to be as objective as possible. An example of results from an experiment comparing five sorting algorithms is shown in Table \ref{results} below.\\
+
+\begin{center}
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{ccccccc}
+\hline
+Run & Bubble & Quick & Selection & Insertion & Merge \\
+\hline
+1 & 17384 & 24 & 3258 & 3 & 30 \\
+2 & 17559 & 21 & 3386 & 3 & 27 \\
+3 & 17795 & 19 & 3344 & 4 & 28 \\
+4 & 17484 & 20 & 3417 & 3 & 28 \\
+5 & 17642 & 19 & 3358 & 3 & 30 \\
+\hline
+Average & 17572.8 & 20.6 & 3352.6 & 3.2 & 28.6 \\
+\hline
+%
+\end{tabular}
+\end{center}
+\caption{Execution times for the five sorting algorithms on 100 000 random numbers between 0 and 10 000.}
+\label{results}
+\end{table}
+\end{center}
+
+What you show heavily depends on the type of method you use and what type of data you collect. Numerical data can for example be shown in both tables and graphs. A complementary graph for the sorting algorithms example is shown in Figure \ref{graph}.
+
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics*[width=0.6\columnwidth]{img/graph}
+\end{center}
+\caption{Execution times for the five sorting algorithms shown as a graph.}
+\label{graph}
+\end{figure}
+Note that Tables and Figures shall be labeled with chapter.number, for example Table 4.1 and Figure 1.6.
+
+\newpage
+
+\section{Analysis}
+\label{analysis}
+Here you give meaning to and your own opinions of the results. What conclusions can you draw from the results? It is important that you don't draw any conclusions that cannot be backed up by your data. Consider using statistical tests to back up your claims. You can read about statistical testing \href{https://coursepress.lnu.se/subject/thesis-projects/statistical-testing/}{here}. \\
+
+\noindent
+\textbf{Notice:} This chapter can be dropped if you (and your supervisor) decides to take the \textit{Experimental Setup, Results, and Analysis} approach discussed in Chapter \ref{experiments}.
+
+
+	
+\newpage
+	
+\section{Discussion}
+Here you discuss your findings and if your problem has been answered. Think of the project as a feedback loop. You define a problem, find a method of approaching it, conduct the study or experiment, and gather data. The data is then used to answer your problem, thus creating the loop.
+
+You shall also discuss how your findings relate to what others have done in the field of study. Are your results similar to the findings in the related work you referenced in the report?
+
+\newpage
+		
+\section{Conclusion}
+In this chapter you end your report with a conclusion of your findings. What have you shown in your project? Are your results relevant for science, industry or society? How general are your results (i.e. can they be applied to other areas/problems as well)? Also discuss if anything in your project could have been done differently to possibly get better results. 
+
+\subsection{Future work}
+You cannot do everything within the limited scope of a degree project. Here you discuss what you would do if you had continued working on your project. Are there any open questions that you discovered during the project work that you didn't have time to investigate?
+
+\newpage
+
+
+%----------------------------------------------------------------------------------------
+%	References. IEEE style is used.
+%
+%----------------------------------------------------------------------------------------
+\newpage
+
+Here you shall include a list of all references used in your report. The reference list shall use the IEEE format. You can read about IEEE referencing \href{https://coursepress.lnu.se/subject/thesis-projects/ieee-references/}{here}. In the reference list below you can find examples of how to list a webpage \cite{courseroom}\cite{ieeeguide}, a journal article \cite{bigdata}, a book \cite{ai} and a conference proceeding (article) \cite{bigdata2}.
+
+\hypersetup{urlcolor=black}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\newpage
+%----------------------------------------------------------------------------------------
+%	Appendix
+%-----------------------------------------------------------------------------------------
+\pagenumbering{Alph}
+\setcounter{page}{1} % Reset page numbering for Appendix
+\appendix
+
+\section{Appendix 1} 
+In the appendix you can put details that does not fit into the main report. Examples are larger snippets of source code, long tables with raw data and questionnaires. 
+ Do not include all your source code for a project involving a lot of programming. Include only code that is important for the understanding of your project.  
+
+\end{document}
