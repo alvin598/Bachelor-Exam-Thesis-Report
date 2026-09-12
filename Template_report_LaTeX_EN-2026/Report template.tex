@@ -29,6 +29,25 @@
             urlcolor=blue,
             citecolor=black]{hyperref}
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red!70!black},
+    commentstyle=\color{green!50!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    captionpos=b
+}
+
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
@@ -82,8 +101,7 @@
 \end{sidebar}
 \vspace{3cm}
 \begin{flushleft}
-    \huge Automatic Generation of Test Cases by using Generative AI\\ 
-    \it \LARGE - Optional subtitle 
+    \huge Automatic Generation of System Level Test Cases by using Generative AI\\ 
 \end{flushleft}
 \null
 \vfill
@@ -104,7 +122,10 @@
 }
 
 \date{} 
-
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath} 
 \begin{document}
 \pagenumbering{gobble}
 \newgeometry{left=5cm}
@@ -118,30 +139,32 @@
 %----------------------------------------------------------------------------------------
 \selectlanguage{english}
 \begin{abstract}
-\noindent The report shall begin with a summary, called abstract. The abstract shall not be longer than a paragraph, and is not divided into more than one piece. It shall contain:
-
-\begin {itemize}
-\item A short background description to the area of your project
-\item A description of the problem you investigate
-\item A motivation why this problem is interesting to investigate
-\item What you have done to answer the problem
-\item A short summary of your results
-\end {itemize}
-
-From reading the abstract the reader should clearly understand what the report is all about. The purpose of the abstract is to make the reader interested in continue reading the report, if it covers something that the reader wants to know more about.
+Software testing is an important part of software development because it helps check that a system works as expected. However, writing test cases manually can take a lot of time, especially when there are many requirements to test. This thesis investigates how AI can be used to generate system-level test cases from requirements and related system information. The main problem is to study whether AI-generated test cases can cover the same requirements as manually created test cases, and if AI can do this with fewer test cases. To investigate this problem, an AI-based pipeline was created using LangChain and Azure OpenAI Service. The pipeline generated test cases in a structured format, including test case ID, requirement IDs, description, steps, and expected result. The pipeline also included traceability generation, where the generated test cases were linked to requirement IDs. The AI-generated test cases were then compared with manually created test cases from Volvo Construction Equipment. The comparison focused on requirement coverage, number of test cases, requirement links, repeated links, test-case matching and a support step-level evaluation. The results show that the AI-generated test cases covered all 22 shared requirements, which was the same requirement coverage as the manual test cases. The AI-generated test suite also used fewer test cases, 7 compared to 9, and had 0 repeated requirement links. The step-level evaluation showed that the AI-generated test cases often followed the same main test idea as the manual test cases, but they were usually less detailed. This shows that AI can support test case generation from requirements, but the generated test cases still need to be reviewed before they can be used for testing a system.
 \newline
-\newline
-\textbf{Keywords: fill in some keywords for your work here. Examples: software architectures, adaptive systems, network intrusion detection, ...}
+
+\textbf{Keywords: AI agent, Large Language Model, Test Case Generation, Requirements-Based Testing, System-Level Testing}
 \end{abstract}
 
 \newpage
+
+\section*{Graphical Abstract}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/graphical abstract.png}
+    \caption{Graphical abstract of the thesis process.}
+    \label{fig:graphical-abstract}
+\end{figure}
+\newpage
+
 %----------------------------------------------------------------------------------------
 %	Preface
 %----------------------------------------------------------------------------------------
 
 \textbf {\large{Preface}}\\
-
-\noindent You can have a preface in the report if you want, but it is not necessary. In this you can write more personal reflections on your degree project. In the preface you can also take the opportunity to thank the people who have been particularly helpful during the report writing, for example if you had any contact with a company that helped with the project, people that guided or helped you during the project, or your family and friends that supported you during the project. The preface shall not be longer than half a page.
+We would like to give a huge thanks to Nils Johansson and Ove Welander for being our supervisors at Volvo Construction Equipment and for giving us this opportunity. We have learned a lot during this project and have appreciated their support and guidance throughout the work.
+We would also like to thank our supervisor at Linnaeus University, Hemant Gvayvat, for the weekly meetings and for guiding us during the project. His feedback and support helped make the work smoother from start to finish.
+This project has been a valuable learning experience and has given us new knowledge, new challenges, and a better understanding of how AI and Large Language Models can be used in software development.
 
 %----------------------------------------------------------------------------------------
 \newpage
@@ -155,52 +178,28 @@ From reading the abstract the reader should clearly understand what the report i
 %	Here follows the actual text contents of the report.
 %
 %----------------------------------------------------------------------------------------
-
-\textbf{Notice}
-\begin{itemize}
-\item Do not change the structure of this template without a discussion (and approval) of your Lnu supervisor.
-\item Regarding tempus: Stick to \emph{present tense} throughout the report. 
-\item This is a technical report intended for readers with a technical background. Hence, be precise and concrete, and use a vocabulary suitable for your problem domain.
-\item All figures and tables in the report should be referenced and explained in the main text.
-\item You can use \href{https://www.grammarly.com}{Grammarly} or any  LLM tool to check your grammar/spelling. Use it!
-%\item The Latex code for Chapter \ref{experiments} shows examples of how to include figures and tables.
-\item \textbf{Make sure to remove this section and all template instructions before you submit your report!} 
-\end{itemize}
-
 \section{Introduction}
 \label{intro}
-In this part of the chapter you shall give a very brief introduction to your degree project. It shall start with a broad overview of what your project is all about. Similar to the abstract, the introduction shall make the reader interested in continue reading your report. Don't be too detailed here; there are plenty of opportunities to add details in later chapters.
+Software development includes many activities that help make sure that a system is reliable and works as intended. One of these activities is software testing, which is used to check system behavior and find problems before release. 
 
-Many parts of Chapter \ref{intro} can be taken from your project plan. However, give them a critical reading and try to improve them.
+Software systems are becoming larger and more complex, which also makes testing more difficult. Testing is challenging because it must check that the system behaves correctly in different situations, while larger systems often contain more functions, dependencies, and possible errors \cite{whittaker2002software, sommerville2016software}.
 
-Software development includes many activities that help make sure that a system is reliable and works as intended. One of these activities is software testing, which is used to check system behavior and find problems before release. As software systems become larger and more complex, testing also becomes more demanding.
+At the same time, artificial intelligence (AI) has developed quickly and is now being used in software engineering. Large language models (LLMs) are especially relevant because they can understand and generate natural language and code \cite{zhang2026survey}. This makes them useful in software testing, especially for tasks where requirements and test cases are written in text \cite{wang2024software}. Previous studies have also examined how LLMs can generate test cases from natural language requirements \cite{korraprolu2025test, bhatia2024system}. 
 
-At the same time, artificial intelligence (AI) has developed quickly and started to be used in several areas of software engineering. Large language models (LLMs) have received a lot of attention because they can understand and generate text, which makes them useful in tasks where written information is important. Zhang et al. \cite{zhang2026survey} show that LLMs are being studied in many different software engineering tasks. Software testing is one of the areas where these models are also starting to gain more interest \cite{wang2024software}.'
+Zhang et al. \cite{zhang2026survey} show that LLMs are being studied in many different software engineering tasks. Software testing is one of the areas where these models are also starting to gain more interest \cite{wang2024software}.
 
 This degree project is carried out in collaboration with Volvo Construction Equipment and investigates whether an existing LLM can be used to generate system test cases from requirements. The project focuses on one specific use of AI in software testing and studies how this can be explored in a real industrial setting. The aim is not to address all challenges in software testing, but to examine one specific case where LLMs may be useful.
 \subsection{Background}
-Describe the background to the problem area of your degree project. Begin with a broad overview of what your 
-project is all about, then focus in on the particular problem. You will need references that support your claims 
-and the problem. Use references in IEEE format \cite{ieeeguide}. A well written background is guiding the reader from the broad perspective, why there is a need 
-for an investigation, and narrowing down to the specific problem. First a subject area and then the area of investigation.
-
-Important concepts that might not be familiar to the reader can also be introduced and explained here. This is also the place where you can give a brief presentation of the company/organization you are working with (if any) and motivate why they are interested in this project.
-
-\noindent
-\textbf{Notice:}  This section should not be extensive. A more thorough presentation of your problem domain will be presented in Chapter \ref{theory} (Theory). 
-
-In many industrial development processes, system test cases are still created manually by test engineers based on requirements and other system documents. This can be a time-consuming task, especially when the system is large or complex. Earlier research shows that automated test case generation from requirements is already an established area. Mustafa et al. \cite{mustafa2021automated} show that many earlier methods are based on structured models such as Unified Modeling Language (UML) diagrams, activity diagrams, and use cases, rather than the less structured requirements that are often used in industry.
+System test cases are commonly created from a test basis, which includes documentation from which system requirements can be identified, such as requirements and other system documents \cite{istqbTestBasis}. In practice, creating these test cases often involves manual test design by test engineers, which can become time-consuming when the system is large, complex, or contains many requirements and interfaces \cite{mustafa2021automated}. Earlier research shows that automated test case generation from requirements is already an established area. Mustafa et al. \cite{mustafa2021automated} show that many earlier methods are based on structured models such as Unified Modeling Language (UML) diagrams, activity diagrams, and use cases, rather than the less structured requirements that are often used in industry.
 
 In recent years, AI has developed quickly, and LLMs have shown potential in several software engineering tasks. In software testing, recent research shows that these models are already being explored for tasks such as test case generation and test design \cite{wang2024software}. This makes them relevant to study in situations where requirements are written in natural language instead of more formal models.
 
 The specific focus of this project is to examine whether an existing LLM can be used to automatically generate system test cases from requirements. This is relevant because test case creation is often a manual and time-consuming task in industry. Recent research has also started to study this problem more directly. For example, Korraprolu et al. \cite{korraprolu2025test} compare different LLMs for generating test cases from technical requirements written in natural language.
 
 The project is therefore relevant from both a practical and a research perspective. In practice, there is a need to reduce manual work and make test case creation more efficient. From a research perspective, it is still important to understand how well LLMs can support test case generation from real industrial requirements.
-\subsection{Related work}
-Here you briefly describe what others have done in the field of study or how others have attempted to explain or solve the same or similar problem as you are investigating.  Make very brief summaries of 2-3 papers that are directly related to your problem domain. It is okay to refer to online tech articles, blogs and portals, but you must also refer to published scientific articles.  \\
 
-\noindent
-\textbf{Notice:}  This section should not be extensive. A more thorough presentation of related work section will be presented in Chapter \ref{theory} (Theory). 
+
+\subsection{Related work}
 
 Previous research shows that automated test case generation from requirements is an established research area. Mustafa et al. \cite{mustafa2021automated} show that many earlier studies focused on generating test cases from structured requirement models such as UML diagrams, activity diagrams, and use cases. This indicates that much previous work has relied on more formalized inputs than those often available in industrial practice.
 
@@ -208,38 +207,39 @@ More recent research shows that AI is becoming increasingly relevant in software
 
 In addition, recent work has started to examine test case generation directly from natural language requirements. For example, a 2025 comparison study evaluated six large language models for generating test cases from technical requirements written in natural language, showing that this problem is now being studied more directly in an LLM context \cite{korraprolu2025test}.
 
-Together, these studies show that automated test case generation is an established research area, while recent AI-based approaches open up new possibilities for practical requirement-based test generation. This supports the relevance of investigating how AI can be used to generate test cases from industrial requirements.
+Together, these studies show that automated test case generation is an established research area, while recent AI-based approaches open up new possibilities for practical requirement-based test generation. This supports the relevance of investigating how AI can be used to generate test cases from industrial requirements and that there is a gap between this investigation and previous work.
+
+Compared to previous studies, this thesis focuses more on a practical industrial case. Some earlier studies used structured models, such as UML diagrams, activity diagrams and use cases, while this thesis uses requirements and related system information from Volvo Construction Equipment. This thesis also compares the AI-generated test cases with manually created test cases from the company. Therefore, the focus of this thesis is to evaluate how an AI-based pipeline can support test case generation in a real industrial setting. 
 
 \subsection{Problem formulation}
-\label{problem}
-Briefly describe the problem you plan to investigate, its limitations, and what results you expect. The problem formulation should be clearly related to your background and you should also point out how it relates to the related works. Try to  specify the knowledge gap, the gap between what is known (related work) and what you plan to do. Although presented as a text, try to be concrete.  About limitations: For example, hardware and software requirements imposed by a company. About expected results: What concrete output do you expect from the project? It can be an evaluation by controlled experiments where various approaches to solve a problem is compared,  or a prototype implementation fulfilling certain criteria (e.g. accuracy $>$ 90\%). \\
+\label{sec:problem_formulation}
+\label{problem} 
 
-\noindent
-\textbf{Notice:}  Your project might involve handling 2-3 problems. For example: 1) Find the best possible approach to handle a certain problem and 2) Create a prototype implementing the best approach. 
+To investigate this problem, the following research questions are asked:
+\begin{itemize}
+    \item To what extent do AI-generated software test cases achieve requirement-level test coverage compared to baseline or manually created test cases? 
+    \item How efficiently can AI-generated test cases achieve requirement-level coverage in terms of the number of test cases required compared to baseline approaches?
+\end{itemize}
 
-You can re-use parts of the problem formulation from your project plan that you have agreed with your supervisor. 
+This thesis investigates whether AI can be used to automatically generate software test cases from system requirements and other related system information. This system information can include interfaces, inputs and outputs, Controller Area Network (CAN) signals, and other relevant parameters. In many software projects, writing test cases is a manual task that takes time and often requires experience \cite{mustafa2021automated}. Because of this, it is important to study whether AI can support this work.
 
-This thesis investigates whether AI can be used to automatically generate system test cases based on system requirements and system information such as interfaces, inputs and outputs, Controller Area Network (CAN) signals, and other parameters. The main problem is to evaluate how well an AI-agent can interpret this information and convert it into clear, relevant, and structured system test cases.
+The main problem in this thesis is not only whether AI can generate test cases, but how useful those test cases are in practice. A good test case generation method should not only create many test cases. It should create test cases that cover the requirements well, while also avoiding more test cases than necessary.
 
-The focus is on assessing the quality of the generated test cases. This will be done by comparing them with manually created test cases through quantitative analysis, and by having an experienced test writer review selected AI-generated test cases through qualitative analysis. The evaluation will consider aspects such as correctness, requirement coverage, clarity, and whether the generated test cases remain relevant to the requirements without including unnecessary or redundant cases.
+For this reason, the thesis focuses on two main aspects. The first is requirement-level test coverage, which means how well the generated test cases cover the requirements compared to baseline or manually created test cases. The second is efficiency, which in this thesis means how many test cases are needed to achieve that coverage. In other words, the study looks at both how much is covered and how efficiently that coverage is reached.
 
-The goal is to deliver a proof of concept that shows to what extent AI-generated system test cases can support or complement manual system test design.
-
+The goal of the thesis is to evaluate whether AI-generated test cases can be a useful support in software testing. More specifically, the study aims to give a clearer understanding of the strengths and limitations of using AI for test case generation based on requirements and system-related information.
 
 \subsection{Motivation}
-Motivate why handling the  problems in your problem formulation is import. And not only for a single company/organization,  why is your problem interesting for science, society or industry (in general). \\
-
- You can re-use parts of the motivation part from your project plan.
-
 This problem is relevant because software testing helps improve system quality and reliability. When requirements are written in natural language, creating test cases often requires manual interpretation by test engineers, which can make the process time-consuming and difficult to standardize. This may lead to inconsistencies, redundant test cases, and lower efficiency.
 
 The problem is relevant not only for Volvo Construction Equipment, but also for companies working with embedded systems and industrial software development, where requirements are often complex and closely connected to testing. In such contexts, there is a practical need for more structured and scalable ways to connect requirements to test design. If test case generation can be automated or supported by AI, it may reduce effort, improve consistency, and support a more efficient testing process.
 
 
 \subsection{Milestones}
-The problem you shall investigate is broken down into a list of milestones. A milestones is something you shall do within the time frame of your degree project.  An milestones shall be understandable, not too small or too large, and possible to define when it is completed or not. You can read about milestones (objectives) \href{https://coursepress.lnu.se/subject/thesis-projects/objectives/}{here}.\\
-\\
-\begin{tabular} {|p{1.2cm}|p{11.6cm}|} \hline
+
+\begin{table}[h]
+\begin{tabular}{|p{1.2cm}|p{11.6cm}|}
+\hline
 \textbf{M1} & Skeleton code running with AI agent\\ \hline
 \textbf{M2} & True input collected from the system to be tested\\ \hline
 \textbf{M3} & First iteration with test cases generated\\ \hline
@@ -248,29 +248,24 @@ The problem you shall investigate is broken down into a list of milestones. A mi
 \textbf{M6} & Feedback loop from supervisor\\ \hline
 \textbf{M7} & Agent updates following review\\ \hline
 \textbf{M8} & Formal evaluation and data collection for result\\ \hline
-\textbf{M8} & Report completed\\ \hline
-\end{tabular}\\
-
-\noindent
-\textbf{Notice:} Consider the milestone as a concrete list of smaller problems to solve (or tasks to handle)  in order to handle the overall problems presented in section \textit{Problem formulation}.
-
-
-Don't mention anything about method here. It will be covered in the Chapter \ref{method}. Note that the objectives you have defined in the project plan can change slightly during the course of the project. This is not a problem. It is often difficult to foresee everything that can occur when writing the project plan.
-
-You can re-use the motivation part from your project plan (although it is likely to be changed during the project).
+\textbf{M9} & Report completed\\ \hline
+\end{tabular}
+\caption{Milestones}
+\label{tab:milestones}
+\end{table}
 
 \subsection{Scope/Limitation}
-You cannot solve everything. Here you describe what you do, and what you don't do, in your project. Limitations can for example be that you only compare some frameworks of all frameworks available on the market, that you only use a specific set of  software and hardware since it was a requirement from the company,  that you only suggest an architecture for a specific software product and not a general architecture, or that you only include university students in a study and not a broader population sample.
-
 This project focuses on investigating whether an already existing large language model can be used to generate system test cases from requirements. One limitation is that the project only works with the existing AI solution and does not involve building a new model from scratch.
 
 The project is also limited to system test case generation. Other types of testing, such as unit testing, integration testing, and performance testing, are not included. Another limitation is that the study is carried out in one industrial context, Volvo Construction Equipment, which means that the results are mainly relevant to that setting and may not apply in exactly the same way in other companies or domains.
 
 In addition, the project only uses the requirement material available in the project and does not include all possible types of requirements or documentation formats. It also does not compare all available AI tools or language models, but focuses on the existing model used in the project.
 
-\subsection{Target group}
-Here you outline which target group that might be interested in your work. If you, for example, do a project about software architectures, a target group can be professional developers and architects that work with similar software systems as the system you investigated. If you do a project for a company, try to identy a larger target group than only the company. 
+The agent is also limited by token usage, since large language models can only process a limited amount of input and output text at one prompt. This means that long requirements, system information, I/O descriptions, or other supporting documents may need to be shortened or split into smaller parts before they are processed by the AI agent. As a result, some contextual information may be reduced, which can affect the generated test \cite{openaiTokens}.
 
+Another limitation is that the agent only produces system test cases in text format rather than executable test code. Therefore, the generated test cases can support the development of executable tests, but additional manual work is still required to implement and run them.
+
+\subsection{Target group}
 This project may be interesting for test engineers, software developers, and companies that work with requirement-based testing. It can be especially relevant for organizations that want to explore how AI can be used to support software testing and reduce manual work when creating test cases.
 
 The project may also be relevant for researchers and students in software engineering, especially those interested in automated testing, requirement-based testing, and large language models. Even though the project is carried out with Volvo Construction Equipment, the results may also be useful for other companies working with complex systems and technical requirements.
@@ -292,191 +287,778 @@ The report is structured as follows:
 \newpage
 
 \section{Theory}
-\label{theory}
-In this chapter you should demonstrate that you have a broad knowledge of area of investigation. That is, you  introduce, describe and explain the theories and important concepts to the reader,  and identify and describe relevant challenges in the area of investigation and describe related work to these challenges.
-
-This section is not about solving a problem, but it may answer one or two of your milestones. For example, the result of a literature review is often presented here (after the general introduction to the research area). 
-
-The basis for the theory chapter is most often some literature survey. Think of is as a focused textbook that introduces and explains slices of theoretical areas that are directly related to your project. Cover theories that are required for both the problem and solution, and sometimes also for the evaluation. It should be like a textbook with figures and examples. This is the chapter where your reference list grows fast! 
-
-
-\noindent
-\textbf{Notice:} All concepts, theories, tools, ..., you plan to use in the following chapters should be presented here. Divide the material into suitable subtopics and use one subsection for each subtopic.
-
 The purpose of this chapter is to present the theoretical background relevant to the project. It includes theory and previous research related to software testing, automated test case generation, large language models (LLMs), and the use of LLMs in software engineering and software testing. These areas are important for understanding the problem studied in this degree project.
 
 \subsection{Software testing fundamentals}
-Software testing is a fundamental part of developing software systems, and it is used to verify that the system behaves as expected and that its requirements are fulfilled. In software testing, there are primarily three levels of testing, including unit testing, integration testing, and system testing. Unit testing focuses on individual components of the system, integration testing focuses on multiple components working together, while system testing focuses on the system as a whole.
+Software testing is a fundamental part of developing software systems, and it is used to verify that the system behaves as expected and that its requirements are fulfilled. In software testing, there are primarily three levels of testing, including unit testing, integration testing, and system testing. Unit testing focuses on individual components of the system, integration testing focuses on multiple components working together, while system testing focuses on the system as a whole \cite{testing_study_2020}.
 
-System testing is often performed as black-box testing, which means that only the system interfaces are tested and based on the requirements, it is examined whether the system fulfills its expected behavior. From the requirements, test cases are defined as a sequence of actions to be performed during testing, including the necessary execution steps and the expected results for each step \cite{testing_study_2020}.
+System testing is often performed as black-box testing, which means that only the system interfaces are tested and based on the requirements, it is examined whether the system fulfills its expected behavior. From the requirements, test cases are defined as a sequence of actions to be performed during testing, including the necessary execution steps and the expected results for each step \cite{testing_study_2020, luo2001softwaretesting}.
 
 \subsection{System testing}
-vad som testas
-varför det passar i exjobbet
-Vad är systemtest i detalj?
-End-to-end testing
-Test av hela systemarkitekturen
-Interaktion mellan komponenter
-Utmaningar (komplexitet, integrationer)
-
 A related concept is end-to-end testing. End-to-end testing usually focuses on complete flows through the system, for example from user input to final output. This is similar to system testing in the sense that both look at the behavior of the full system. However, system testing is broader and focuses more generally on whether the whole system meets its specified requirements. For this reason, system testing is the more suitable concept in this project \cite{istqbE2E}.
 
-System testing can also be challenging. Whittaker \cite{whittaker2002software} explains that software testing is difficult because software behavior can be complex and because testers must consider many possible situations, inputs, and interactions. In larger systems, this becomes even more demanding, since the complete system may include many connected parts, dependencies, and possible execution paths. This makes it difficult to test everything fully in practice.
+System testing can also be challenging. Whittaker \cite{whittaker2002software} explains that software testing is difficult because software behavior can be complex and because testers must consider many possible situations, inputs, and interactions. In larger systems, this becomes even more demanding, since the complete system may include many connected parts, dependencies, and possible execution paths. This makes it difficult to test everything fully in practice. 
 
-This is relevant to the present degree project because the project focuses on generating system test cases from requirements. The purpose is not to test single units of code, but to support the creation of test cases that can verify the behavior of the complete system based on written requirements. Since system testing is closely connected to requirement fulfillment, it provides an important theoretical basis for this study.
+Another difficulty is that system testing often involves many possible inputs, outputs, states, and interactions. Luo \cite{luo2001softwaretesting} explains that testing involves selecting inputs, executing the software, and analysing the outputs. In larger systems, this selection becomes important because testers need to decide which scenarios are most relevant to test. This creates a risk that some requirements, edge cases, or interactions are not covered by the test cases.
+
+System testing focuses on evaluating the complete system against its specified requirements \cite{istqbSystemTesting}. This makes system test cases important in this thesis, because the generated test cases are evaluated based on how well they cover the requirements. If relevant requirements, scenarios, or system behaviours are not included in the test cases, this may affect the measured requirement coverage. Therefore, the test cases need to be clear, connected to the requirements, and focused on relevant system behaviours.
 
 \subsection{Test Case Design Techniques}
+One common approach is requirement-based testing, where test cases are defined from system requirements. This ensures that system behavior is validated against its specification, although it often relies on manual interpretation \cite{luo2001softwaretesting}.
+
+Scenario-based testing focuses on constructing test cases from realistic usage scenarios. These scenarios represent end-to-end interactions and are particularly relevant for system-level validation \cite{sommerville2016software}.
+
+Techniques such as \textit{equivalence partitioning} and \textit{boundary value analysis} are used to systematically select input data. 
+\textit{Equivalence partitioning} divides input data into groups that are expected to be processed similarly by the system. By selecting representative values from each group, the number of test cases can be reduced while still maintaining effective coverage.
+\textit{Boundary value analysis} focuses on testing values at the edges of input ranges, where errors are more likely to occur. This helps to identify faults related to limits and constraints.
+These techniques improve test efficiency while still addressing the areas where errors are more likely to occur \cite{sommerville2016software}.
+
 
 \subsection{Model-based Testing}
 Model-based testing (MBT) is a testing approach where test cases are generated from a model of the system instead of being created manually. The model describes the expected behavior of the system, and the generated test cases are based on that model. Dalal et al. \cite{dalal1999model} describe model-based testing as a way of generating test cases from requirements by using models of the system behavior. This makes the testing process more systematic and supports a higher degree of automation. In the same direction, Pretschner explains that model-based testing relies on models or specifications that encode the intended behavior of a system, and that runs of the model can be interpreted as test cases \cite{pretschner2005mbt}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{img/model based testing.png}
+    \caption{Overview of the test case generation workflow from structured requirements to generated test cases.}
+    \label{fig:ai_generation}
+\end{figure}
 
-A central idea in MBT is therefore that the model represents how the system is expected to behave, and that test cases are derived from this representation. This makes the testing process more systematic and can support a higher degree of automation than fully manual test design \cite{dalal1999model,pretschner2005mbt}. El-Far and Whittaker also describe model-based software testing as an approach where models are used to guide test selection and test verification \cite{elfar2001mbst}.
+A central idea in MBT is therefore that the model represents the expected behaviour of the system, and that test cases are created based on this model. This makes the testing process more systematic and can support a higher degree of automation than fully manual test design \cite{dalal1999model,pretschner2005mbt}. El-Far and Whittaker also describe model-based software testing as an approach where models are used to guide test selection and test verification \cite{ibrahim2001model}.
 
-MBT is useful to this degree project because it represents an established approach to automated test generation. At the same time, it also shows an important difference compared to the present study. In MBT, the generation of test cases depends on having a model that represents the intended system behavior \cite{pretschner2005mbt}. In this degree project, the focus is instead on generating system test cases directly from written requirements by using a large language model (LLM). For this reason, MBT can be seen as a useful background and comparison point for the present work.
+\subsection{Software Requirements Specification (SRS)}
+Software requirements describe what a software system is expected to do and what conditions it must fulfil. When such requirements are documented in a structured way, they can be used as a requirements specification. Bhatia et al. \cite{bhatia2024system} use requirements specification documents as input when studying system test case design with ChatGPT-4o, which shows that such documents can be used as a basis for creating system test cases.
+
+Requirements are important in testing because they describe the expected behaviour that the system should be checked against. Mustafa et al. \cite{mustafa2021automated} discuss automated test case generation from requirements, where requirements are used as input for creating test cases. This is relevant in this thesis because the AI agent uses requirement material as input when generating system test cases.
+
+
+\subsection{Evaluation Criteria for Generated Test Cases}
+Evaluation of test cases is an important part of automated test case generation, since the quality of the generated output must be assessed before it can be considered useful in practice. In this context, generated test cases can be evaluated based on several criteria, such as correctness, completeness, verifiability, traceability, and unambiguous.
+
+\subsubsection{Correctness}
+An SRS is correct if its requirements match what the software is supposed to do. Since no tool can guarantee this automatically, the document needs to be checked against other specifications, project documents, and relevant standards. It can also be reviewed by customers or users to confirm that it reflects actual needs. Traceability helps by making these checks easier and reducing errors \cite{doe2011recommended}.
+
+\subsubsection{Completeness}
+An SRS is complete if it contains all important requirements for the software. This includes functional requirements, performance requirements, design constraints, quality-related requirements, and external interfaces. A complete SRS should also describe how the software responds to different types of input and situations, including invalid input. In addition, figures, tables, and diagrams should be clearly referenced, and all important terms and units should be explained \cite{doe2011recommended}.
+
+\subsubsection{Verifiability}
+A requirement is verifiable if there is a clear and practical way to check whether the software fulfills it. This means that the requirement must be specific enough to be tested or measured. In general, ambiguous requirements are not verifiable, because it is not possible to determine objectively whether they have been satisfied. Verifiability is important in software testing because requirements need to be written in a way that allows testers to determine whether the expected behavior has been achieved \cite{doe2011recommended}.
+
+\subsubsection{Traceability}
+Traceability means that a test case can be linked to the requirement or requirements it is intended to verify. In other words, it should be possible to see which requirement a test case comes from and what it is meant to test. This is important because traceability helps ensure that requirements are properly covered by the test process and makes it easier to identify missing or redundant test cases. In automated test case generation, traceability is particularly relevant, since it allows the generated test cases to be connected back to the original requirements and supports a more structured evaluation of the results \cite{doe2011recommended}.
+
+\subsubsection{Unambiguous}
+An SRS is unambiguous if each requirement can only be understood in one way. This means that the wording should be clear and consistent, so that different people do not interpret the requirement differently. If a term can have several meanings, it should be explained more clearly. This is important because software requirements are used by different groups, such as developers, testers, and users, who may not have the same background. If a requirement is ambiguous, it can create misunderstandings and make it harder to design, implement, and test the system correctly. In automated test case generation, this becomes even more important, since unclear requirements may lead to incorrect or unstable generated test cases \cite{doe2011recommended}.
+
+
+\subsection{Large Language Models (LLMs)}
+LLMs are artificial intelligence models trained on very large amounts of text. This allows them to recognize patterns in language and produce text that often seems natural and understandable. Recent research shows that LLMs have become important in many areas of software engineering. Zhang et al. \cite{zhang2026survey} show that LLMs are being studied across several software engineering phases, including requirements, development, testing, maintenance, and management.
+
+One important reason for the rapid development of LLMs is the transformer architecture. Vaswani et al. \cite{vaswani2017attention} introduced the Transformer as a new neural network architecture based on attention mechanisms. Many modern LLMs are based on this architecture. Zhao et al. \cite{zhao2023survey} explain that pretrained language models were first developed by training Transformer models on large amounts of text. When these models were later scaled up with more data and computing power, they developed into large language models.
+
+Because LLMs are designed to process and generate natural language, they can be used for many different tasks, such as text generation, summarization, translation, and question answering. They have also become increasingly common in technical domains. In software engineering, they are being explored for tasks such as code generation, documentation, repair, and testing \cite{zhang2026survey}.
+
+In software testing, Wang et al. \cite{wang2024software} describe LLM-based testing as a growing research area. Their survey shows that LLMs are already being used for several testing-related tasks, such as test design, test generation, and other forms of testing support. This suggests that LLMs are not only useful for general language tasks, but also have potential in more specialized software engineering contexts.
+
+At the same time, LLMs also have limitations. The output they generate is not always correct, complete, or consistent. Because of this, the results produced by LLMs often need to be reviewed carefully before they can be used in practice. This is also discussed in survey research on LLMs in software engineering and software testing \cite{zhang2026survey,wang2024software}.
 
 \subsection{Automated Test Case Generation}
 
-\subsection{Large Language Models (LLMs)}
+Automated test case generation has long been studied as a way to reduce the manual effort involved in software testing. Traditional approaches commonly generate test cases from requirements, UML models, activity diagrams, or other structured representations of system behavior \cite{mustafa2021automated}.
 
-\subsection{LLMs in Software}
+However, these approaches often depend on models or specifications that must be created and maintained manually. This can become difficult in complex systems, especially when documentation is incomplete or when the requirements are mainly expressed in natural language \cite{mustafa2021automated}.
+
+More recent research has explored the use of large language models for test generation. For example, Bhatia et al. show that ChatGPT-4o can generate system test case designs from software requirements specifications, with a large share of the generated test cases judged as valid by developers \cite{bhatia2024system}.
+
+At the same time, current LLM-based approaches still have important limitations. Dakhel et al. show that LLM-generated tests can contain syntactic or functional errors and may miss corner cases unless additional refinement and post-processing steps are applied \cite{dakhel2024effective}. Recent review work also shows that pre-processing, post-processing, and evaluation remain central challenges in LLM-based test case generation \cite{tasarsu2026slr}.
+
+This suggests a gap between the flexibility offered by LLMs and the reliability required in practical test generation. In this thesis, that gap is addressed by exploring an AI-agent-based approach for generating and refining system-level test cases from requirements.
 
 \subsection{AI-Agents}
+AI agents are systems that are designed to carry out tasks more independently than a normal LLM. Instead of only giving one response, an AI agent is often built to work toward a goal through several steps. Research on LLM-based autonomous agents describes these systems as an extension of ordinary language models, where the model is given a more active role in solving tasks \cite{wang2024survey}.
 
-\subsection{Evaluation of Test Cases}
+A common way to describe AI agents is through their different parts. Wang et al. \cite{wang2024survey} explain that LLM-based agents can include functions such as memory, planning, and action. This means that an agent does not only generate text, but can also keep track of information, decide what to do next, and perform actions in a more structured way.
+
+Another important difference is that AI agents are often designed to interact with external tools, resources, or environments. Liu et al. \cite{liu2024large} explain that LLM-based agents in software engineering extend ordinary LLMs by allowing them to use external tools and resources. This makes them useful in more complex tasks where one answer is not enough and where several steps may be needed to complete the task.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{img/AI agent.png}
+    \caption{Overview of an AI agent and its main functional components.}
+    \label{fig:ai_agent}
+\end{figure}
+
+AI agents are also being studied in software engineering. According to Liu et al. \cite{liu2024large}, these agents are explored in areas such as requirements engineering, software development, testing, and maintenance. In addition, Wang et al. \cite{wang2024software} show that LLMs are increasingly used in software testing, which makes agent-based approaches especially interesting in testing-related work.
+
+At the same time, AI agents also have limitations and open challenges. There are challenges related to the construction, application, and evaluation of LLM-based autonomous agents\cite{wang2024survey}. More recent research on AI agent protocols also points out that there is still no standard way for agents to communicate with external tools or data sources, which makes it harder for them to work together and scale effectively \cite{yang2025survey}.
+
+
+\subsection{System Interfaces}
+The following sections briefly describe the Interfaces for system testing.
+
+\subsubsection{CAN Signals}
+Controller Area Network (CAN) signals are used to communicate information between different control units in the system. Each signal represents a specific value or state, such as sensor data, status information, or commands. In testing, CAN signals can be monitored to verify that the correct messages are sent, and they can also be simulated to test how the system reacts to specific input values or system states \cite{schneider_io}.
+
+\subsubsection{Human-Machine Interface}
+The Human-Machine Interface (HMI) is the part of the system that the user interacts with. It can include displays, buttons, indicators, or other visual feedback. The HMI is important because it shows how the system state is presented to the user and how the user can give input to the system \cite{nist_hmi}.
+
+\subsubsection{Input and Output}
+Input and output signals describe how the system receives information from its surroundings and how it responds. Inputs can come from sensors, buttons, or communication signals, while outputs can control actuators, lamps, displays, or other system components. These signals are relevant when defining and verifying test cases, since they connect the expected system behavior to measurable actions \cite{schneider_io}.
+
 
 \newpage
 
 \section{Method}
 \label{method}
-In  Section \ref{problem} you have defined problems to investigate and milestones to handle, and you need some problem-solving activity to handle the problems. This is what we mean with a method. We have a problem, and we need some proven and structured way of approaching and solving that problem. There is no single way that works for all problems. Researchers have learned through history that particular methods are effective for problems that share some characteristics (in terms of purpose, context or problem). You can, therefore, look at how others have answered similar problems as your own problem, and use a similar method.
-
-There is a wide range of methods you can use in your project.  You can read about methods \href{https://coursepress.lnu.se/subject/thesis-projects/method-overview/}{here}.
+This section describes the methods used in the thesis to investigate the research problem and answer the research questions. It explains how the study is carried out, which approaches are used, and why these methods are suitable for the project. The section also describes how data is collected, how the AI-generated test cases are evaluated, and how the results are analysed.
 
 \subsection{Research Project}
-In your project, as defined by the problem formulation and the milestones, it is likely that you will use several different methods. In this section we want you to state which method you plan to use to handle which problem/milestone.  Motivate your decision and relate it to the problem type, stakeholders, thesis project setup, etc. 
+Based on the problem formulation in Section \ref{sec:problem_formulation}, this thesis investigates the following research questions:
+
+\begin{enumerate}
+    \item To what extent do AI-generated software test cases achieve requirement-level test coverage compared to baseline or manually created test cases? 
+    \item How efficiently can AI-generated test cases achieve requirement-level coverage in terms of the number of test cases required compared to baseline approaches?
+\end{enumerate}
+
+To answer these research questions, the study uses a combination of a literature review and a practical evaluation with both quantitative and qualitative elements.
+
+The literature review provides a theoretical foundation for the study. It presents previous research related to software testing, requirements engineering, AI-based test case generation, and the evaluation of test case quality. It also helps define important concepts used in the thesis, such as requirement coverage. In addition, the literature review supports the research problem and helps motivate the design of the evaluation.
+
+The first research question focuses on requirement-level test coverage. The purpose is to examine to what extent AI-generated test cases cover the relevant requirements. In this study, the AI-generated test cases are compared with manually created test cases developed by Volvo Construction Equipment, which serve as a baseline for comparison.
+
+The second research question focuses on efficiency. In this thesis, efficiency refers to how well the generated test cases achieve requirement coverage in relation to the number of test cases produced. This means that the study examines not only whether the requirements are covered, but also whether this is done with a reasonable number of test cases and with as little unnecessary overlap as possible. The AI-generated test cases are therefore compared with Volvo’s manually created test cases in terms of the number of test cases needed to reach requirement coverage.
+
+The quantitative part of the method is used to analyse measurable aspects, such as the number of covered requirements and the number of generated test cases, as well as differences between AI-generated and manually created test cases. The qualitative part is based on manual comparison between the AI-generated test cases and the manually created reference test cases. The comparison focuses on whether the generated test cases cover similar requirements and whether their steps align with the manually created test cases.
 
 \subsection{Method}
-Present the methods you listed in the previous section and how you plan to  apply them in your project. Each method you use should be described in detail. You must demonstrate that you have a complete understanding of the methods you use. Hence, for each method you are using: 1) Describe it in general, 2) Describe how you plan to apply it in your project.
+The following subsection presents the different methods in more detail and explains how they relate to the research questions.
+
+\subsubsection{Literature Review}
+A literature review is used to examine previous research related to the topic of the study. It includes books, scientific articles, and other relevant sources in order to show what has already been studied in the research area. A literature review can also help explain important concepts and create a clearer background for the study \cite{usc_literature_review}.
+
+In this study, the literature review focused on software testing, AI-based test case generation, and the evaluation of test case quality. The reviewed literature was used to explain central concepts and to support the design of the study. 
+
+\subsubsection{Quantitative Method}
+A quantitative method is used when the study focuses on things that can be measured and expressed in numbers. Quantitative research is based on numerical data and is used to examine patterns, differences, or relationships in a structured way. It is often used when the researches wants to compare results or measure to what extend something occurs. Quantitative research is designed for purposes such as hypothesis testing, predictive modelling, and causal inference, which means that it focuses on measurable results rather than subjective interpretations \cite{lim2025quantitative}.
+
+In this study, the quantitative part was based on comparing AI-generated test cases with manually created test cases from Volvo Construction Equipment. The comparison focused on the number of covered requirements and the number of generated test cases.
+
+
+\subsubsection{Qualitative Method}
+A qualitative method is used when the study focuses more on meaning, interpretation, and assessment than on numbers. It is often used when the researcher wants to understand how something is evaluated or understood in more depth. Instead of focusing mainly on measurable results, the qualitative method focuses more on judgement and interpretation \cite{usc_qualitative_method}.
+
+In this study, the qualitative part was based on comparing the AI-generated test cases with the manually created reference test cases. The comparison focused on whether the test cases covered the same requirements and whether the test steps were similar, partly similar, or different. This helped show how closely the AI-generated test cases followed the manually created test cases.
+
 
 \subsection{Reliability and Validity}
-Here you discuss the reliability and validity of your project. To answer your problem you use a method, collect (and possibly analyze) data, and draw conclusions from the data. 
+Reliability and validity are important in this study because the results depend on both the generated test cases and the way they are evaluated. Reliability refers whether the same results could be obtained if the study were repeated under similar conditions. One possible reliability issue in this thesis is that AI-generated test case may vary between runs, even when the same requirements are used as input. The test generation was tested several times during the development of the study. However, the final evaluation was based on one final AI-generated set of test cases. Because AI-generated test cases may vary between runs, the result should be understood as the outcome of that specific generation run. This can be seen as a reliability limitation. This can make it difficult to achieve fully consistent results. Reliability may also be affected by the the manual comparison, since the assessment of requirement coverage and efficiency includes human judgment. To  reduce this problem, the study uses the same input material, the same requirements, and the same general evaluation criteria when comparing AI-generated test cases with manually created test cases from Volvo Construction Equipment. 
 
-Reliability means if others will get the same result as you if they replicate your work. Reliability problems can, for example, occur if you use the wrong method for data collection.
-
-It is important that you only draw conclusions that are valid, i.e. that is supported by the way you have done your work and the data you have collected. 
-
-You can read about reliability \href{https://coursepress.lnu.se/subject/thesis-projects/reliability/}{here} and about validity \href{https://coursepress.lnu.se/subject/thesis-projects/validity/}{here}. Discuss if you have any reliability issues or validity threats in your project here.
+Validity refers to whether the study actually measures what it intends to measure, and whether the conclusions are supported by the method and the collected data. In this thesis, validity is supported by the fact that the evaluation is directly connected to the research questions. Requirement-level coverage is examined by comparing the generated test cases and the manually created test cases against the same set of requirements. Efficiency is examined by comparing coverage in relation to the number of test cases and by considering redundancy between test cases. The inclusion of manually created test cases from Volvo Construction Equipment as a baseline also strengthens the validity of the study, since it provides a relevant practical comparison. At the same time, there are threats to validity. The manual comparison may be influenced by personal interpretation. Also, if the requirements are unclear or incomplete, it can be difficult to decide whether they are covered by the test cases. Another limitation is that the study is based on one specific industrial case, which means that the results may not be the same in other companies or domains.
 
 \subsection{Ethical considerations}
-You are required to discuss any ethical considerations (if any) in your project. If you do an experiment you will most likely not have any ethical considerations, but in a survey ethical considerations can for example be how you make sure that the privacy of the people participating in the study is not violated (by for example removing names from the gathered data). 
+This project involves limited ethical considerations. The main ethical aspect concerns the input data used in the study, such as requirements and interface descriptions provided by Volvo Construction Equipment. Since this data may contain confidential technical information, it must be handled carefully and not shared outside the project.
 
-If you do not have any ethical considerations, state it and give a motivation.
+The project does not involve human participants, surveys, interviews, or sensitive personal data. Therefore, the overall ethical risk is considered low. The generated test cases are evaluated within the scope of the thesis and are not used directly in a production environment.
+
+Due to the confidential material, the full test case results will not be presented in this thesis. Instead, only selected parts of the results will be shown, while sensitive technical details will be removed. This ensures that the study can still be presented and discuss the evaluation results without exposing confidential information from Volvo Construction Equipment. 
+
 
 \subsection{AI disclosure}
-Contributions by artificial intelligence (AI) tools and
-technologies to the thesis project must be clearly reported. This should include the
-name(s) of any tools used, a description of how you used the tool(s)
-and evaluated the validity of the tool’s outputs, and a clear statement of
-which aspects of the report, implementation, data or experiments were
-affected/generated by AI tool usage.
+
+
+In this project, AI tools were used by the agent and as a supportive tool during both the development and writing process.
+
+AI was used within the agent implementation, where it supported the interpretation of requirements and the generation of structured test cases. The AI model used for the agent was ChatGPT-5.4, which the agent communicated by an API using LangChain.
+
+
+In development, AI was mainly used to produce an initial skeleton code for the AI-agent system, which served as a starting point for the implementation. From this initial structure, the code was further developed and integrated into the final system. To make use of the skeleton code, the generated output was further evaluated and tested to ensure that it worked correctly, and could be adapted to fit the intended system design.
+
+AI tools were also used to improve grammar and increase the formality of the language in the report. All text produced with the support of AI was carefully reviewed to ensure that the language was appropriate and that the intended meaning was not changed. The AI tool used in this project was ChatGPT, using GPT-5.5.
 
 \subsection{Team Work}
-\textbf{This section is only relevant for students that work in a team.}\\
+Since this thesis was carried out as a team project, the work was divided so that both authors contributed equally. Both authors were involved in the technical parts of the project, such as implementation and system design, as well as the theoretical parts, including literature study, method, analysis, and report writing.
 
+The work was divided into two main areas. Alvin Svensson had the main responsibility for the design of the test cases. This included studying established methods for creating effective system-level test strategies and analyzing how test coverage, test depth, and scenario selection could be structured. The purpose of this was to ensure that the generated test cases were relevant and covered full requirements, while still avoiding testing more than needed.
 
- 
+Danny Nguyen mainly focused on further developing the AI artifact based on the existing skeleton code. His work involved refining the initial structure and adapting it so that the system could handle the required input data, such as system specifications, I/O descriptions, CAN signals, and HMI (Human-Machine Interface) behaviors. This included improving how the inputs were processed and structured before being used by the AI model to generate test cases. His work also included studying AI agents and how agent-based approaches could support the system in handling more complex inputs and producing more consistent test outputs.
 
-The final grade for the thesis project is individual. That is, your Lnu supervisor, the reader, and the examinator must be able to say that each individual student has made a substantial contribution to the team effort. In order to facilitate individual grading  each part of the work should have \emph{one} responsible student. The team member responsible for a certain section should in some way "own" this section. That means, he/she should be able to answer detailed questions regarding this section. Also, we expect a 50-50 (roughly) division of work across the different types of project tasks. For example, both students must be involved in the technical stuff (e.g., implementation) and the more theoretical parts (e.g., writing about research methods).\\
+The report writing was divided equally between both authors, since each part of the project required technical documentation, analysis, and reflection.
 
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Student} & \textbf{Danny Nguyen} & \textbf{Alvin Svensson} \\
+\hline
+\textbf{Chapter 1} & 1.1, 1.2, 1.5, 1.6, 1.7 & 1.1, 1.3, 1.4, 1.8 \\
+\hline
+\textbf{Chapter 2} & 2.2, 2.4, 2.6, 2.7, 2.9 & 2.1, 2.3, 2.5, 2.8 \\
+\hline
+\textbf{Chapter 3} & 3.1, 3.2.2, 3.3 & 3.2.1, 3.2.3, 3,4, 3.5, 3.6 \\
+\hline
+\textbf{Chapter 4} & 4.1, 4.4, 4.5, 4.8 & 4.2, 4.3, 4.6, 4.7  \\
+\hline
+\textbf{Chapter 5} & 5.1.3, 5.2, 5.2.1, 5.2.2, 5.2.3, 5.2.5 & 5.1, 5.1.1, 5.1.2, 5.2.6\\
+\hline
+\textbf{Chapter 6} & 6.1, 6.3, 6.4 & 6.2, 6.5, 6.6 \\
+\hline
+\textbf{Chapter 7} & 7.2 & 7.1, 7.3\\
+\hline
+\textbf{Chapter 8} & 8, 8.1 & 8, 8.1 \\
+\hline
 
-\textbf{Notice:} Of course, you can work together on many parts of the thesis project, but only one of you can be responsible for each part of the report.\\
-
-In this section you should simply assign  \emph{one} responsible student for each part of the report. It doesn't have to be lengthy. For example, Jonas is responsible for Chapters 2 and 6, and sections 1.1-1.4, 2.1, 2.3, 2.5-2.7, ... 
-
-Also, describe in text how you have divided the work between the team members. Which parts that was mainly handled by Student X, and which parts you did together.
-
+\end{tabular}
+\caption{Distribution of chapters between students}
+\label{tab:chapters}
+\end{table}
 \newpage
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Template_report_LaTeX_EN-2026/img/langchain_pipeline.png}
+    \caption{System overview of the AI-based test case generation pipeline, from input data to generated test cases and traceability information.}
+    \label{fig:system-architecture}
+\end{figure}
+
 \section{Implementation}
-It is common that you will develop something in your project. It can be a mobile app, a stand-alone application, a website, a game, etc. In this chapter you describe the software you have implemented or the system you have created. 
+This chapter describes the implementation of the AI-based test case generation agent. It first gives an overview of the system architecture and then explains how input data, such as requirements and interface information, is handled. The chapter continues by describing the requirement parsing step, the LangChain pipeline, the prompt design, and how test cases and traceability information are generated. Finally, the chapter presents the output validation step used to check requirement coverage, as well as the configuration and model settings used in the implementation.
 
-A good idea for how to present a non-trivial piece of software is to first present a figure showing a schematic overview of the software architecture. Try to explain the overall structure. Then dig into details in the following subsections. 
+\subsection{System overview}
+Figure~\ref{fig:system-architecture} presents an overview of the architecture of the implemented system. The blue box on the left represents the input data provided by the company. This input includes requirements, I/O descriptions, CAN signals, HMI behaviors, and the test strategy. Together, these inputs form the basis for the AI-based test case generation pipeline.
 
-Feel free to include short code snippets of important code. But not too many and not too large snippets.   All such snippets should be discussed and explained in the text.
+The purple box in the middle represents the LangChain prompting stage, which contains the three main generation steps of the system: requirement parsing, test case generation, and traceability generation. In the first step, the requirements are restructured into a more structured and test-oriented format, making them easier for the following steps to process. In the second step, the structured requirements are used together with the relevant system information to generate system-level test cases. In the third step, the generated test cases are connected back to the original requirements in order to produce traceability information.
+
+The yellow box to the right of the prompting stage represents the large language model. At this stage, the prompts prepared in the previous step are sent to the LLM, which generates the corresponding outputs for each part of the pipeline.
+
+The final step is shown in the blue output box on the right. This box represents the generated outputs of the system, including the parsed requirements, generated test cases, and traceability report. The test cases contain descriptions of the test steps and expected results, while the traceability output describes the connection between requirements and test cases. These outputs can later be used to analyze requirement coverage and evaluate the quality of the generated test cases.
+
+
+\subsection{Input data handling}
+The input data handling step is responsible for preparing the different types of input before they are passed to the agent. Instead of treating all input as one large text block, the data is separated into different categories, such as interface information, requirements and test strategy. This makes it clearer for the agent what each part of the input represents and how it should be used in the generation process.
+
+This step is important because the LLM should not have to infer the purpose of the input by itself. By defining the input data more clearly, the system provides better context for the following steps and reduces the risk that the model uses the information in an incorrect or inconsistent way.
+
+\subsection{Agent design}
+The agent implemented in this project is a python class that separately calls the three different prompts and save the output. The first prompt preprocesses the requirements into a structured format, the second prompt generates system-level test cases, and the third prompt creates traceability information between the generated test cases and the original requirements.
+
+Each prompt module used by the agent is responsible for a specific step in the generation pipeline. The agent is instantiated and executed from a Jupyter Notebook, where the required input data, including the test strategy, requirements, and interface descriptions, is loaded before the generation process begins. After each generation step, the output is validated using predefined Pydantic schemas. These schemas ensure that the generated responses follow the expected JSON structure and include the required field.
+
+This structure allows the agent to handle the generation process step by step, where each prompt has a clearly defined role in the overall pipeline.
+
+\subsection{LLM integration}
+LangChain is used to manage the communication between the Python implementation and the selected language model. In this project, LangChain functions as an integration layer between the prompt modules and the LLM. It is used to send the prepared prompts to the model and return the generated responses to the agent.
+
+The language model parameters are loaded from a shared configuration file within the prompt modules and are used when the model is initialized through LangChain. These parameters include settings such as the selected model and other generation parameters. 
+
+Separating the model configuration from the main agent logic allows the same configuration to be reused across all the different prompt modules. It also makes the implementation easier to maintain, since changes to the LLM setup can be made in one place without modifying the prompt modules or the main agent workflow.
+
+\subsection{Prompt Pipeline}
+The following subsections are going to describe the three different prompts in more detail and what their objective are.
+
+\subsubsection{Requirement preprocessing}
+Before any test cases are generated, the agent preprocesses the requirements by transforming them into a structured and test-oriented format. This makes the requirements easier for the LLM to interpret and use as a basis for test case generation.
+
+The output from the preprocessing step is represented as a list of JSON objects, where each object corresponds to one requirement. Each object includes the requirement ID, a short requirement description, and a list of functional test conditions. These conditions describe the behaviours or scenarios that should later be verified during test case generation.
+\begin{lstlisting}[style=pythonstyle, caption={Preprocessed requirement format.}, label={lst:req-parsing}]
+[
+    {
+      "id": "EXACT_REQUIREMENT_ID_FROM_INPUT",
+      "description": "...",
+      "conditions": [
+      "condition 1"
+      "condition 2"
+      ],
+    }
+]
+\end{lstlisting}
+
+\newpage
+\subsubsection{Test generation}
+After the requirement preprocessing step, the agent generates the test cases. The test case prompt uses the preprocessed requirements, the system interface descriptions, and the test strategy to generate consistent system-level test cases.
+
+The purpose of this prompt is to transform the structured requirement information into concrete test cases that describe how the system behaviour should be verified. The system interface descriptions are included to give the model information about available signals, inputs, outputs, and other system elements that may be needed when describing the test execution. The test strategy is used to guide the model toward generating test cases with a consistent structure and level of detail.
+
+The output from this step is a list of generated test cases in JSON format. Each test case contains an identifier, a reference to one or more requirements, a short description, a sequence of test steps, and an expected result. This format makes the generated test cases easier to process, validate, and connect to the original requirements.
+
+\begin{lstlisting}[style=pythonstyle, caption={Test case format.}, label={lst:test_generation}]
+[
+    {
+      "id": "TC-1",
+      "requirement_ids": ["EXACT_REQUIREMENT_ID_FROM_REQUIREMENT_DATA"],
+      "description": "Verify that ...",
+      "steps": [
+        "Step 1",
+        "Step 2",
+        "Step 3"
+      ],
+      "expected_result": [
+        "After Step 2, the system shall ...",
+        "After Step 3, the system shall ..."
+      ]
+    }
+]
+\end{lstlisting}
+
+\newpage
+\subsubsection{Traceability report}
+The final prompt is responsible for generating the traceability report. The inputs to this prompt are the preprocessed requirements and the test cases generated in the previous step. By comparing the requirement descriptions and functional test conditions with the generated test cases, the LLM identifies which requirements are covered by each test case. For each traceability entry, the model returns the test case identifier, all related requirement IDs, and a rationale explaining how the test case is covering the requirements.
+
+This step is included to make the generated output easier to review and evaluate. Instead of only producing a list of test cases, the agent also provides information about how the test cases are connected to the requirement data. This supports traceability and helps determine whether the generated test cases cover the intended requirements.
+
+\begin{lstlisting}[style=pythonstyle, caption={Traceability report format.}, label={lst:traceability_report}]
+[
+    {
+      "testcase_id": "TC-1",
+      "requirement_ids": ["EXACT_REQUIREMENT_ID_FROM_REQUIREMENT_DATA"],
+      "reasoning": "This test case covers the requirement because..."
+    }
+]
+\end{lstlisting}
+
+
+\subsection{Test case strategy}
+
+The test case strategy is defined in a separate file and is included as input to the test case generation prompt. Its purpose is to guide the LLM toward generating consistent and structured system-level test cases.
+
+The strategy contains rules and constraints for how the test cases should be generated. These rules cover areas such as requirement traceability, use of available system interface descriptions, prevention of unsupported information, and the expected JSON output structure.
+
+The test case strategy also includes guidance based on ISTQB testing terminology and principles. This includes instructions for how test cases should be structured, as well as references to test design techniques such as equivalence partitioning, boundary value analysis, decision table testing, and state transition testing. These instructions were included to guide the LLM toward generating structured and traceable test cases that are more consistent with established software testing practices \cite{istqbSystemTesting}.
+
+The strategy is a plain-text YAML file consisting of different sections with instructions that guide the model during generation. By storing the strategy in a separate YAML file, it can be modified without changing the Python implementation or the main agent workflow.
+
+
+\subsection{Output validation and Interface traceability}
+After the test case have been generated, the output is validated to check whether all provided requirements are covered. This is done by comparing the requirement IDs from the input data with the requirements IDs linked to the generated test cases. 
+
+This step does not evaluate whether each test case is correct or complete in terms of quality. Instead, it verifies that every requirement has at least one linked test case. This step is used to check whether all requirements are included in the generated test cases.
+
+The program also generates an interface traceability report from the input interfaces and all generated test cases where the interfaces will be used. This report is generated by a simple search algorithm and is later used to validate each test case.
+
+
+
+\subsection{Configuration and model settings}
+The system uses \texttt{AzureChatOpenAI} to access the selected language model, GPT-5.4. The temperature parameter is set to \texttt{0} to reduce variation between runs, while \texttt{reasoning\_effort} is set to \texttt{None}, meaning that no specific reasoning effort level is explicitly requested \cite{langchain_azurechatopenai_docs}.
+
+The model configuration is kept separate from the main pipeline logic. This makes the implementation easier to maintain, since model-related settings can be updated without changing the full system structure. Configuration values such as the model name, API endpoint, and API key are handled through configuration files or environment variables. This also helps avoid writing sensitive information directly in the source code.
 
 \newpage
 
 \section{Experimental Setup and Results}
 \label{experiments}
-In this section you should describe your experimental setup and results. In the ideal case you have one large experiment which results are  then discussed in the next chapter (Analysis).\\
 
-\noindent
-\textbf{Notice:} A project sometimes involves several experiments. In such cases it is often hard to understand the purpose of one experiment before previous experiments have been analyzed and discussed. In such cases we suggest that you merge Chapters \ref{experiments} and \ref{analysis} into one large chapter \textit{Experimental Setup, Results, and Analysis} where you for each experiment 
-present setup, results, analysis. Discuss with your supervisor about which approach to take.\\
+This chapter presents the experimental setup and the results of the comparison. The first part describes how the experiment was prepared and carried out, including the input data, procedure, and evaluation metrics. The second part presents the results from the comparison between the AI-generated test cases and the manually created test cases.
 
-By experimental setup we mean a detailed description of the environment in which the experiment was carried out. For example, what computer that was used, what software that was used, if the result to be presented is an average over 10 repeated runs, etc. In short,  it should in principle be possible for a reader to repeat your experiments and get the same results if they manage to recreate your environment.
+\subsection{Experimental Setup}
+This section describes the technical setup used to carry out the experiment. The purpose is to make clear which environment was used when the AI-generated test cases were created and prepared for comparison.
 
-The result section should only show the raw results without any analysis, and you shall not put any conclusions or opinions in the description of the results. Try to be as objective as possible. An example of results from an experiment comparing five sorting algorithms is shown in Table \ref{results} below.\\
+The experiment was run on a Volvo development computer. The implementation was written in Python, and the AI pipeline used LangChain to organize the different generation steps. AzureChatOpenAI was used to connect the pipeline to the selected language model through Azure OpenAI Service. The input data consisted of requirements and supporting system information, while the output consisted of generated test cases in JSON format.
 
-\begin{center}
-\begin{table}[ht]
-\begin{center}
-\begin{tabular}{ccccccc}
-\hline
-Run & Bubble & Quick & Selection & Insertion & Merge \\
-\hline
-1 & 17384 & 24 & 3258 & 3 & 30 \\
-2 & 17559 & 21 & 3386 & 3 & 27 \\
-3 & 17795 & 19 & 3344 & 4 & 28 \\
-4 & 17484 & 20 & 3417 & 3 & 28 \\
-5 & 17642 & 19 & 3358 & 3 & 30 \\
-\hline
-Average & 17572.8 & 20.6 & 3352.6 & 3.2 & 28.6 \\
-\hline
-%
+Table~\ref{tab:experimental_setup} shows the main hardware and software used in the experiment.
+
+\begin{table}[H]
+\centering
+\caption{Experimental setup}
+\label{tab:experimental_setup}
+\begin{tabular}{p{4cm} p{9cm}}
+\toprule
+\textbf{Setup item} & \textbf{Description} \\
+\midrule
+Processor & 12th Gen Intel Core i5-1250P, 12 cores \\
+Memory & 16.0 GB RAM \\
+Operating system & Windows 11 \\
+Programming language & Python \\
+Development environment & VS Code and Jupyter Notebook \\
+Pipeline framework & LangChain \\
+Model connection & AzureChatOpenAI \\
+Model service & Azure OpenAI Service \\
+LLM model & GPT-5.4 \\
+Temperature & 0 \\
+Reasoning & None \\
+Input format & Requirements in JSON format and supporting system information as structured text \\
+Output format & JSON with test case ID, requirement IDs, description, steps, and expected result \\
+Baseline & Manually created Volvo test cases \\
+\bottomrule
 \end{tabular}
-\end{center}
-\caption{Execution times for the five sorting algorithms on 100 000 random numbers between 0 and 10 000.}
-\label{results}
 \end{table}
-\end{center}
 
-What you show heavily depends on the type of method you use and what type of data you collect. Numerical data can for example be shown in both tables and graphs. A complementary graph for the sorting algorithms example is shown in Figure \ref{graph}.
+\subsubsection{Experiment Purpose and Input Data}
+The purpose of the experiment was to compare the AI-generated test cases with manually created test cases. The comparison focused on requirement-level coverage and the number of test cases needed to cover the same requirement set. In addition, a step-level comparison was performed to examine whether selected AI-generated test cases follows the same main test intention as the manually created reference test cases. 
 
-\begin{figure}[ht!]
-\begin{center}
-\includegraphics*[width=0.6\columnwidth]{img/graph}
-\end{center}
-\caption{Execution times for the five sorting algorithms shown as a graph.}
-\label{graph}
+The experiment used two test case sets. One set was generated by the developed AI pipeline, and the other set was manually created and used as the baseline. The interfaces and requirements used in the experiment were retrieved from a system activity, where 22 relevant requirements were identified. The comparison only included these 22 requirements, since they were the requirements that both test case sets had in common. As the manual test suite included additional requirements outside the scope of the activity, the comparison was limited to the test cases related to the 22 requirements identified from the activity.
+
+
+Each test case was linked to one or more requirement IDs. These links were later used to calculate coverage, number of test cases, repeated links, and test-case matching. The linked requirement IDs were also used to identify which AI-generated and manually created test cases could be compared more closely in the step-level evaluation.
+
+\subsubsection{Experimental Procedure}
+The experiment was performed in four main stages. First, the selected input data was prepared and given to the AI pipeline. The pipeline then generated system-level test cases and traceability information for the generated test cases.
+
+Second, the generated output was checked to make sure that each test case had a test case ID, linked requirement IDs, a description, test steps, and an expected result. This made the output possible to compare in a structured way.
+
+Third, the AI-generated test cases and the manually created test cases were organized into comparison tables. These tables were then used as the basis for the result calculations presented in the next section.
+
+The fourth test included a step-level comparison was performed for selected test cases where the AI-generated and manually created test cases were linked to the same requirements. This comparison was not performed only line by line, since the test cases did not always contain the same number of steps. Instead, the comparison focused on whether the same main setup, actions, and name elements were present. 
+
+
+\subsubsection{Evaluation Metrics}
+Five metrics were used in the comparison. Requirement coverage was used to measure how many requirements were covered by at least one test case. The number of test cases was used to compare how many test cases were needed in each test case set.
+
+Requirement links were used to count how many requirement IDs were linked across all test cases. Repeated links were also counted to see how many requirement links appeared more than once.
+
+Test-case matching was used to compare AI-generated test cases with manually created test cases. This matching was based on linked requirement IDs. A perfect match meant that the test cases covered the same requirement group, while a partial match meant that only some requirements overlapped.
+
+A step-level color marking was also used as a supporting evaluation. The comparison focused on the detailed content of selected test cases, such as setup, action and named elements. Each relevant part was marked as green, yellow, or red. The green-marked steps represent steps that fully matched between the manually written test cases and the AI-generated test cases. The yellow-marked steps represent partial matches, where the steps described similar actions but used different variables, values, or levels of detail. The red-marked steps represent steps that did not have any corresponding match in the other test case.
+
+
+\subsection{Results}
+This section presents the results from the comparison between the AI-generated test suite and the manually created test suite. The comparison is based on the 22 requirements that both test suites have in common. The results focus on requirement-level coverage, efficiency, requirement links, test-case matching, and a test case step-level evaluation. 
+
+\subsubsection{Test Case to Requirement Mapping}
+This section presents the mapping between the test cases and the requirements. The mapping shows which requirement IDs each test case is linked to. This was used as the basis for calculating requirement coverage, number of requirement links, and repeated requirement links.
+
+The AI-generated test suite consisted of 7 test cases, while the manually created test suite consisted of 9 test cases. Each test case was linked to one or more of the 22 shared requirements. Table~\ref{tab:ai_requirement_mapping} shows the requirement mapping for the AI-generated test suite. Table~\ref{tab:manual_requirement_mapping} shows the requirement mapping for the manually created test suite.
+\begin{table}[H]
+\centering
+\caption{Requirement mapping for the AI-generated test suite}
+\label{tab:ai_requirement_mapping}
+\begin{tabular}{p{2.5cm} p{9cm} p{2cm}}
+\toprule
+\textbf{AI test case} & \textbf{Linked requirements} & \textbf{Number of links} \\
+\midrule
+AI1 & K2126, K2107, K2113, K2128, K2112 & 5 \\
+AI2 & K0003, K0001 & 2 \\
+AI3 & K2127, K2115, K2108, K2129, K2116 & 5 \\
+AI4 & K0004, K2114, K0002 & 3 \\
+AI5 & K2110, K0010, K0009 & 3 \\
+AI6 & K0008 & 1 \\
+AI7 & K0005, K0006, K0007 & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{Requirement mapping for the manually created test suite}
+\label{tab:manual_requirement_mapping}
+\begin{tabular}{p{2.5cm} p{9cm} p{2cm}}
+\toprule
+\textbf{Manual test case} & \textbf{Linked requirements} & \textbf{Number of links} \\
+\midrule
+M1 & K0003, K0001 & 2 \\
+M2 & K0004, K0002, K2114 & 3 \\
+M3 & K0005, K0007, K0006 & 3 \\
+M4 & K2127, K2126, K2129, K2115, K2116, K2128, K2107, K2112 & 8 \\
+M5 & K2127, K2126, K2129, K2115, K2116, K2128, K2107, K2112 & 8 \\
+M6 & K0008 & 1 \\
+M7 & K2127, K2126, K2129, K2116, K2114, K2128, K0004, K0009, K0003, K2112 & 10 \\
+M8 & K2113, K2108 & 2 \\
+M9 & K2110, K0009, K0010 & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Requirement coverage results}
+This section presents the requirement coverage for the AI-generated test suite and the manually created test suite. Requirement coverage was calculated by counting how many of the 22 shared requirements were linked to at least one test case. In this comparison, a requirement was counted as covered if it appeared in at least one test case.
+
+The coverage was calculated as:
+\[
+\text{Requirement coverage} = \frac{\text{covered requirements}}{\text{requirements in scope}}
+\]
+
+Table~\ref{tab:requirement_coverage} shows the requirement coverage for both test suites.
+
+\begin{table}[H]
+\centering
+\caption{Requirement coverage for the AI-generated and manually created test suites}
+\label{tab:requirement_coverage}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Test suite} & \textbf{Requirements in scope} & \textbf{Covered requirements} & \textbf{Coverage} \\
+\midrule
+AI-generated & 22 & 22 & 100\% \\
+Manual & 22 & 22 & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both test suites covered 22 out of 22 shared requirements. This means that both the AI-generated test suite and the manually created test suite achieved 100\% requirement coverage within the comparison scope.
+
+\subsubsection{Efficiency Based on Number of Test Cases}
+This section presents the number of test cases used by each test suite to cover the 22 shared requirements. The efficiency was calculated by dividing the number of covered requirements by the number of test cases. This gives the number of covered requirements per test case.
+
+\[
+\text{Requirements per test case} = \frac{\text{covered requirements}}{\text{number of test cases}}
+\]
+
+Table~\ref{tab:testcase_efficiency} shows the number of test cases and the requirements per test case for both test suites.
+
+\begin{table}[H]
+\centering
+\caption{Efficiency based on number of test cases}
+\label{tab:testcase_efficiency}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Test suite} & \textbf{Test cases} & \textbf{Covered requirements} & \textbf{Requirements per test case} \\
+\midrule
+AI-generated & 7 & 22 & 22 / 7 = 3.14 \\
+Manual & 9 & 22 & 22 / 9 = 2.44 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The AI-generated test suite covered the 22 shared requirements using 7 test cases. The manually created test suite covered the same 22 requirements using 9 test cases.
+
+\subsubsection{Requirement Links and Repeated Requirement Links}
+This section presents the number of requirement links in each test suite. A requirement link means that a test case is connected to a requirement ID. Repeated requirement links occur when the same requirement appears in more than one test case.
+
+The number of repeated requirement links was calculated as:
+
+\[
+\text{Repeated links} = \text{total links} - \text{unique requirements}
+\]
+
+In Table~\ref{tab:requirement_links}, unique req. shows how many different requirements are covered. Total links shows how many requirement IDs are linked in total across all test cases. Repeated links shows how many of these links are repeated.
+
+\begin{table}[H]
+\centering
+\caption{Requirement links and repeated links}
+\label{tab:requirement_links}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Test suite} & \textbf{Unique req.} & \textbf{Total links} & \textbf{Repeated links} \\
+\midrule
+AI-generated & 22 & 22 & 0 \\
+Manual & 22 & 40 & 18 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The AI-generated test suite had 22 total links and 0 repeated links. The manually created test suite had 40 total links and 18 repeated links.
+
+\subsubsection{Exact and Partial Test-Case Matching}
+This section presents how the AI-generated test cases matched the manually created test cases based on linked requirement IDs. The comparison was based on requirement links, not on the wording or detailed steps of the test cases.
+
+A perfect match means that an AI-generated test case covered the same requirement group as a manually created test case. A partial match means that the AI-generated test case shared some requirements with the closest manually created test case, but the requirement group was not identical.
+
+Table~\ref{tab:testcase_matching} shows the closest manually created test case for each AI-generated test case.
+
+\begin{table}[H]
+\centering
+\caption{Matching between AI-generated and manually created test cases}
+\label{tab:testcase_matching}
+\begin{tabular}{lll}
+\toprule
+\textbf{AI test case} & \textbf{Closest manual test case(s)} & \textbf{Match type} \\
+\midrule
+AI1 & M4, M5 & Partial match \\
+AI2 & M1 & Perfect match \\
+AI3 & M4, M5 & Partial match \\
+AI4 & M2 & Perfect match \\
+AI5 & M9 & Perfect match \\
+AI6 & M6 & Perfect match \\
+AI7 & M3 & Perfect match \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:match_summary} summarizes the number of perfect, partial, and unclear matches.
+
+\begin{table}[H]
+\centering
+\caption{Summary of test-case matching}
+\label{tab:match_summary}
+\begin{tabular}{lc}
+\toprule
+\textbf{Match type} & \textbf{Number of AI test cases} \\
+\midrule
+Perfect match & 5 \\
+Partial match & 2 \\
+No clear match & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The matching results show that 5 out of 7 AI-generated test cases had a perfect match, while 2 out of 7 had a partial match. No AI-generated test case lacked a clear match.
+
+\subsubsection{Test case step comparison}
+This section present the test case step comparison. The purpose is to compare the AI-generated test cases with the manually created test cases at a more detailed level. Instead of only checking which requirements are covered, this comparison looks at the individual steps in the test cases. This makes it possible to identify clear matches, partial matches, and parts that do not clearly match. The comparison uses color markings, where green shows matching parts, yellow shows partly matching parts, red shows non-matching parts, and black hides confidential information. 
+
+One example of the step-level comparison is shown in Figure~\ref{fig:AI-testcase} and Figure~\ref{fig:Manual-testcase}. Figure~\ref{fig:AI-testcase} shows the AI-generated test case, while Figure~\ref{fig:Manual-testcase} shows the manually created test case used for comparison. Both figures have been masked because the data in the test cases is confidential and cannot be presented in the report. The remaining comparisons are presented in table~\ref{tab:step_level_comparison} and table~\ref{tab:expected_output_comparison} .
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Template_report_LaTeX_EN-2026/img/TC-2-AI.png}
+    \caption{AI-generated test case with color markings used for step-level comparison.}
+    \label{fig:AI-testcase}
 \end{figure}
-Note that Tables and Figures shall be labeled with chapter.number, for example Table 4.1 and Figure 1.6.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{Template_report_LaTeX_EN-2026/img/TC-2-Manual.png}
+    \caption{Manually created test case with color markings used for step-level comparison.}
+    \label{fig:Manual-testcase}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Step-level comparison between manual and AI-generated test cases}
+\label{tab:step_level_comparison}
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Test case} & 
+\textbf{Manual green} & 
+\textbf{Manual yellow} & 
+\textbf{Manual red} & 
+\textbf{AI green} & 
+\textbf{AI yellow} & 
+\textbf{AI red} \\
+\hline
+1 & 1 & 7 & 1 & 1 & 6 & 0 \\
+2 & 1 & 18 & 4 & 1 & 7 & 0 \\
+3 & 3 & 3 & 9 & 3 & 1 & 0 \\
+4 & 3 & 4 & 7 & 4 & 3 & 0 \\
+5 & 1 & 4 & 4 & 1 & 5 & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Expected result comparison between manual and AI-generated test cases}
+\label{tab:expected_output_comparison}
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Test case} & 
+\textbf{Manual green} & 
+\textbf{Manual yellow} & 
+\textbf{Manual red} & 
+\textbf{AI green} & 
+\textbf{AI yellow} & 
+\textbf{AI red} \\
+\hline
+1 & 0 & 4 & 1 & 0 & 4 & 1 \\
+2 & 0 & 4 & 15 & 0 & 4 & 3 \\
+3 & 0 & 3 & 9 & 0 & 3 & 0 \\
+4 & 0 & 2 & 6 & 0 & 2 & 0 \\
+5 & 0 & 2 & 1 & 0 & 2 & 2 \\
+\hline
+\end{tabular}
+\end{table}
+
 
 \newpage
 
 \section{Analysis}
 \label{analysis}
-Here you give meaning to and your own opinions of the results. What conclusions can you draw from the results? It is important that you don't draw any conclusions that cannot be backed up by your data. Consider using statistical tests to back up your claims. You can read about statistical testing \href{https://coursepress.lnu.se/subject/thesis-projects/statistical-testing/}{here}. \\
+This chapter analyses the results from the comparison between the AI-generated test cases and the manually created test cases. The analysis focuses on what the results mean in relation to requirement coverage, efficiency, requirement links, and test-case matching.
 
-\noindent
-\textbf{Notice:} This chapter can be dropped if you (and your supervisor) decides to take the \textit{Experimental Setup, Results, and Analysis} approach discussed in Chapter \ref{experiments}.
+The purpose of the analysis is not to decide that one test case set is better in every aspect. Instead, the chapter discusses what can be concluded from the collected data and what cannot be concluded based on the selected metrics.
+
+\subsection{Requirement Coverage}
+The results show that both the AI-generated test cases and the manually created test cases covered all 22 shared requirements. This means that the AI-generated test cases achieved the same requirement-level coverage as the manual baseline in this experiment.
+
+This result is relevant for the first research question, since it shows that the AI-generated test cases were able to cover the same shared requirement set as the manually created test cases. However, the result only shows coverage at requirement-ID level. It does not prove that the AI-generated test cases are equal to the manual test cases in all quality aspects.
+
+For example, a requirement can be linked to a test case, but the test case may still be too general, unclear, or difficult to execute in practice. Therefore, the result should be interpreted as requirement-level coverage, not as a complete evaluation of test case quality.
+
+\subsection{Test Case Efficiency}
+The AI-generated test cases covered the 22 shared requirements using 7 test cases. The manually created test cases covered the same requirements using 9 test cases. This means that the AI-generated test case set was more compact in the experiment, because it reached the same requirements coverage with fewer test cases.
+
+This result is connected to the second research question, which focuses on how efficiently AI-generated test cases can achieve requirement-level coverage. Based on the number of test cases, the AI-generated test cases were more efficient at requirement level.
+
+However, fewer test cases are not always better. A smaller case set can be easier to review and maintain, but it can also make each test case broader. If one test case covers many requirements, it may become harder to understand, execute, or debug if the test fail. Therefore, the result shows better efficiency in terms of number of test cases, but not necessarily better practical test quality.
+
+\subsection{Requirement Links and Repeated Links}
+The AI-generated test cases had 22 total requirement link and 0 repeated links. The manually created test cases had 40 total requirement links and 18 repeated links. This means that each shared requirement appeared once in the AI-generated test case set, while several requirements appeared more than once in the manual test case set.
+
+From a requirement-level view, the AI-generated test cases had less repetition. This supports the result that the AI-generated test case set was more compact. The AI pipeline created test cases where each requirement was covered without repeating the same requirement IDs across several test cases. 
+
+However, repeated links in the manual test cases do not automatically mean that the manual test cases are worse or unnecessary. A requirement can be tested more than once in different situations. This can be useful if the requirement is important, complex, or needs to be checked in several scenarios. Therefore, the repeated links should be seen as an observation, not as proof that the manual test cases contain unnecessary duplication.
+
+\subsection{Test-Case Matching}
+The matching results show that 5 out of 7 AI-generated test cases had a perfect match with a manually created test case based on linked requirement IDs. The remaining 2 AI-generated test cases had partial matches. No AI-generated test case lacked a clear match.
+
+This shows that most of the AI-generated test case were aligned with the manually created test case at requirement-link-level. In several cases, the AI-generated test cases covered the same requirement group as the manual test cases. This suggests that the AI pipeline was able to create test cases that were similar to the manual baseline in terms of requirement coverage.
+
+The partial matches show that the AI pipeline sometimes grouped requirements differently from the manual test cases. This does not necessarily mean that the AI-generated test cases were wrong. It means that the AI and the manual test design did not always organize the requirements in the same way. To judge whether these differences are good or bad, the detailed test steps and expected results would need to be reviewed more closely.
+
+\subsection{Test case step analysis}
+The step-level evaluation was added because requirement-level coverage and requirement-link matching do not show the full content of the test cases. A test case can be linked to the correct requirement ID, but still differ from the manual reference test case in setup, actions, or named elements.
+
+The color-based marking showed that the AI-generated test cases could be compared more clearly when the input names were aligned with the terminology used in the manual test cases. Green markings indicated that the AI-generated test case followed the same main test intention or performed the same function as the manual test case. Yellow markings indicated that the AI-generated test case was partly aligned, but missed some details or described them in a less specific way.
+
+Red markings were interpreted carefully. They were not treated as direct proof that a test case was incorrect. Instead, they showed that a specific part could not be clearly matched between the AI-generated and manually created test cases. For the manual test cases, red markings often reflected additional detailed steps or verification points. For the AI-generated test cases, red markings often indicated that the generated step was more general, unclear, or not explicitly present in the manual reference test case. The results also show that the red color appears more frequently in the manually written test case steps. This suggests that the AI-generated steps are generally represented in the manual test cases, but that the manual test cases often include additional steps not generated by the AI agent. This can be interpreted as that the manually written test cases test functionality beyond what is explicitly specified in the requirements.
+
+ This evaluation gives a more detailed view of the generated test cases than requirement coverage alone. However, the step-level evaluation should still be seen as a supporting analysis, not as a full expert review. It can show similarities and differences between the AI-generated and manually created test cases, but it cannot fully decide whether the test cases would work correctly in the real system.
+
+Overall, the step-level evaluation showed that the AI-generated test cases often tested the same general behavior as the manually created test cases, even if the steps were not always written in the same way.
+
+\subsection{Limitations of the Analysis}
+This analysis has some limitations. The comparison was mainly based on linked requirement IDs. This means that the study checked whether each requirement was connected to at least one test case. To add more detail, a step-level evaluation was also performed on selected test cases.
+
+For example, a test case can be linked to a requirement, but it may still be unclear, too general, or difficult to execute in practice. Because of this, the results should be seen as requirement-level results, not as a complete evaluation of test case quality.
+
+The comparison was also limited to the shared requirements used in both test case sets. Therefore, the results should only be interpreted within this selected requirement scope.
 
 
-	
+    
 \newpage
 	
 \section{Discussion}
-Here you discuss your findings and if your problem has been answered. Think of the project as a feedback loop. You define a problem, find a method of approaching it, conduct the study or experiment, and gather data. The data is then used to answer your problem, thus creating the loop.
+The problem formulation is presented in Chapter~\ref{sec:problem_formulation}. This section discusses the results in relation to the research questions and explains whether the questions have been answered. It also discusses how the findings relate to previous work in the field, as well as the strengths and limitations of the study. 
 
-You shall also discuss how your findings relate to what others have done in the field of study. Are your results similar to the findings in the related work you referenced in the report?
+\subsection{Answering The Research Question}
+The results show that the AI-generated test cases were able to cover the selected requirements at requirement level. This means that the covered requirements were linked to requirement IDs and that each selected requirement was covered at least once. To discuss the problem formulation we try to answer the research questions stated in section ~\ref{sec:problem_formulation}:
+
+\begin{itemize}
+    \item To what extent do AI-generated software test cases achieve requirement-level test coverage compared to baseline or manually created test cases? 
+    \item How efficiently can AI-generated test cases achieve requirement-level coverage in terms of the number of test cases required compared to baseline approaches?
+\end{itemize}
+
+For the first research question, the results indicate that the AI-generated test cases can achieve strong requirement-level coverage when the input requirements and the prompt are structured in a clear way. Table~\ref{tab:requirement_coverage} shows that the agent generates test case with 100\% requirement coverage.
+
+For the second research question, the results show how efficiently the AI-generated test cases achieved requirement coverage in terms of the number of test cases required. According to table~\ref{tab:testcase_efficiency} the AI-generated test suite used fewer test cases than the manual test suite, which can indicate higher efficiency. 
+
+A possible reason why AI generated fewer test case is that the AI test cases were more compact and less detailed than the manually created test cases. The manual test cases often included more specific setup steps, detailed actions, and verification points. This can be because human tester has more knowledge and background information about the system, while AI mainly depends on the information given in the input. The step-level comparison shows that the steps in the AI-generated test cases generally match steps found in the manually written test cases, but not necessarily the other way around. This indicates that the manually written test cases often contain more detailed steps, and in some cases may include additional checks that go beyond what is explicitly stated in the requirement.
+\subsection{Relation to previous work}
+The findings of this study are in line with previous research on automated test case generation from requirements. Mustafa et al. \cite{mustafa2021automated} describe how requirements can be used as a basis for generating test cases automatically. This study supports that idea, since the AI-generated test cases were able to cover the selected requirements at requirement level.
+
+The findings also relate to Wang et al. \cite{wang2024software}, who discuss the use of large language models in software testing. In this study, the LLM was able to generate test cases that were linked to requirement IDs, which shows that LLMs can support requirement-based test case generation.
+
+\subsection{Strengths and Limitations}
+This study evaluated AI-generated test cases by comparing them with manually created test cases at requirement level. The main focus was on requirement coverage and on how many test cases were needed to cover the selected requirements. This made it possible to evaluate whether the AI-generated test cases covered the same shared requirement set as the manual test cases.
+
+A strength of this approach is that the comparison was based on requirement IDs. Since each test case was linked to one or more requirements, it was possible to check the coverage in a clear and structured way. This reduced the risk of only judging the test cases based on their wording, since two test cases can be written differently but still cover the same requirement.
+
+Another strength is that the study included both AI-generated and manually created test cases. The manual test cases were used as a baseline, which made it possible to compare the AI-generated output with an existing test suite. This made the result more useful than only looking at the AI-generated test cases by themselves.
+
+Traceability was also an important strength in this study. Since the generated test cases were linked to requirement IDs, the evaluation became more structured and easier to verify. This made it possible to check requirement coverage in a clear way, instead of only reading the test cases manually and trying to decide which requirements they covered.
+
+Another strength is that the study did not only rely on requirement-level coverage. A step-level evaluation was also included to compare selected AI-generated and manually created test cases in more detail. This made it possible to examine whether the AI-generated test cases followed the same main test intention, actions, and expected results as the manual baseline.
+
+However, a limitations is that the evaluation does not fully show whether each generated test case would work correctly in the real system. The study includes requirement-level coverage and a step-level evaluation, which gives a more detailed view of the test cases. However, the step-level evaluation is still only a supporting analysis. It can show similarities and differences between the AI-generated and manually created test cases, but it cannot fully confirm the quality or practical usefulness of each test case.
+
+Another limitation is that the study was based on a selected requirement set. Therefore, the results should not be interpreted as proof that the method works equally well for all types of requirements or all systems. More requirements and more system functions would need to be tested to make the result more general.
+
+The results can also be affected by the structure of the input and the prompt. Since the requirements were given with clear requirement IDs and the prompt instructed the model to cover all requirements, the result may depend on how well the input and prompt were prepared. If the requirements were less clear or less structured, the generated test cases might have been different.
 
 \newpage
 		
 \section{Conclusion}
-In this chapter you end your report with a conclusion of your findings. What have you shown in your project? Are your results relevant for science, industry or society? How general are your results (i.e. can they be applied to other areas/problems as well)? Also discuss if anything in your project could have been done differently to possibly get better results. 
+This thesis has investigated whether an AI agent based on large language models can be used to automatically generate system-level test cases from requirements and interface descriptions. The aim was to explore whether such an approach could be used to produce structured test cases in a more automated way.
+
+The implemented solution works like a pipeline where requirements are first preprocessed into a more structured format, then used together with interface information and a test strategy to generate system-level test cases. Finally, a traceability report is generated to connect the produced test cases back to the original requirements. The system was implemented using Python, and the use of the LangChain utilities to communicate with the LLM.
+
+The results show that the AI agent is able to generate test cases that cover the provided requirements and maintain traceability between requirements and generated tests. The use of a separate test strategy has also helped guide the model toward a more consistent and structured output. In particular, the generated test cases were often more compact than the manually written test cases, since the AI agent grouped related requirements into fewer test scenarios when possible.
+
+However, the results also show that automatic test case generation has limitations. The generated test cases depend heavily on the quality and completeness of the input requirements and interface descriptions. In some cases, the model may produce test steps that are less detailed than manual test cases, or exclude practical aspects that a human tester would normally include. Therefore, the generated test cases should not be seen as a complete replacement for manual test design, but rather as a supporting tool that can reduce repetitive work and provide an initial test case structure.
+
+In conclusion, the thesis demonstrates that an LLM-based AI agent can be used to support system-level test case generation and traceability. The approach shows potential for improving efficiency in the test design process, especially in early stages where requirements need to be transformed into structured test scenarios. 
 
 \subsection{Future work}
-You cannot do everything within the limited scope of a degree project. Here you discuss what you would do if you had continued working on your project. Are there any open questions that you discovered during the project work that you didn't have time to investigate?
+Future work could investigate how the underlying LLM setup can be optimized for system-level test case generation. This could include both the selection of the language model and the configuration of model parameters. Since different LLMs may differ in reasoning capability, output stability, instruction following, and ability to preserve traceability to requirements, several models could be used and compared with the same requirements, interface data. As part of the same investigation, different model configurations could also be evaluated. Parameters such as temperature and reasoning effort could be varied to study how they influence output consistency, requirement coverage, traceability quality, and the level of detail in the generated test cases.
+
+Another aspect that was out of the scope of this thesis was whether it is possible to generate executable testing code directly from the same input. However, as this thesis has shown, the generated test cases still require manual interpretation before they can be executed in a real test environment.
+
+Future work could therefore investigate how the generated system-level test cases can be transformed into executable test scripts. This would require a closer connection between the generated test steps and the available test environment, for example by mapping each step to concrete system inputs, interface signals or an expected outputs. In such an extension, the use of helper methods would become important, since they could be used to represent several lower-level test actions as a single reusable operation. For example, a high-level step in a generated test case could be mapped to a helper method that performs the required sequence of interface interactions in the test environment.
 
 \newpage
 
@@ -487,8 +1069,6 @@ You cannot do everything within the limited scope of a degree project. Here you 
 %----------------------------------------------------------------------------------------
 \newpage
 
-Here you shall include a list of all references used in your report. The reference list shall use the IEEE format. You can read about IEEE referencing \href{https://coursepress.lnu.se/subject/thesis-projects/ieee-references/}{here}. In the reference list below you can find examples of how to list a webpage \cite{courseroom}\cite{ieeeguide}, a journal article \cite{bigdata}, a book \cite{ai} and a conference proceeding (article) \cite{bigdata2}.
-
 \hypersetup{urlcolor=black}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
@@ -496,12 +1076,11 @@ Here you shall include a list of all references used in your report. The referen
 %----------------------------------------------------------------------------------------
 %	Appendix
 %-----------------------------------------------------------------------------------------
-\pagenumbering{Alph}
-\setcounter{page}{1} % Reset page numbering for Appendix
-\appendix
+%\pagenumbering{Alph}
+%\setcounter{page}{1} % Reset page numbering for Appendix
+%\appendix
 
-\section{Appendix 1} 
-In the appendix you can put details that does not fit into the main report. Examples are larger snippets of source code, long tables with raw data and questionnaires. 
- Do not include all your source code for a project involving a lot of programming. Include only code that is important for the understanding of your project.  
+%\section{Appendix 1} 
+ 
 
 \end{document}
